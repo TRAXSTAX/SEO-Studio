@@ -1323,4 +1323,513 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ==========================================
+  // Tool 17: Keyword Discovery
+  // ==========================================
+  const kwDiscoveryBtn = document.getElementById('kw-discovery-btn');
+  if (kwDiscoveryBtn) {
+    let discoveryResults = [];
+    kwDiscoveryBtn.addEventListener('click', async () => {
+      const seed = document.getElementById('kw-discovery-seed').value.trim();
+      if (!seed) return alert('Enter a seed keyword');
+
+      const tbody = document.getElementById('kw-discovery-tbody');
+      const statusEl = document.getElementById('kw-discovery-status');
+      const countEl = document.getElementById('kw-discovery-count');
+
+      kwDiscoveryBtn.disabled = true;
+      tbody.innerHTML = '';
+      discoveryResults = [];
+      countEl.textContent = '0';
+      statusEl.textContent = 'Scanning Google Autocomplete...';
+
+      try {
+        const response = await fetch('/api/keywords/discover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seed })
+        });
+
+        await readSSE(response, (type, data) => {
+          if (type === 'progress') {
+            statusEl.textContent = data;
+          } else if (type === 'complete') {
+            discoveryResults = data || [];
+            countEl.textContent = discoveryResults.length;
+            statusEl.textContent = `Done! Found ${discoveryResults.length} keyword suggestions.`;
+
+            if (discoveryResults.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:2rem">No keywords found</td></tr>';
+            } else {
+              let html = '';
+              discoveryResults.forEach(item => {
+                html += `
+                  <tr>
+                    <td style="font-weight:bold; color:var(--text)">${escapeHtml(item.keyword)}</td>
+                    <td><span class="badge warning">${escapeHtml(item.source)}</span></td>
+                    <td style="color:var(--text-muted); font-family:monospace">${escapeHtml(item.modifier)}</td>
+                  </tr>
+                `;
+              });
+              tbody.innerHTML = html;
+            }
+          } else if (type === 'error') {
+            statusEl.textContent = 'Error: ' + data;
+          }
+        });
+      } catch (e) {
+        statusEl.textContent = 'Connection failed: ' + e.message;
+      } finally {
+        kwDiscoveryBtn.disabled = false;
+      }
+    });
+
+    // CSV Export
+    document.getElementById('kw-discovery-export').addEventListener('click', () => {
+      if (!discoveryResults.length) return alert('No keywords to export');
+      let csv = 'Keyword,Source,Modifier\n';
+      discoveryResults.forEach(r => {
+        csv += `"${r.keyword}","${r.source}","${r.modifier}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'discovered_keywords.csv';
+      a.click();
+    });
+  }
+
+  // ==========================================
+  // Tool 18: Keyword Clustering
+  // ==========================================
+  const kwClusterBtn = document.getElementById('kw-cluster-btn');
+  if (kwClusterBtn) {
+    kwClusterBtn.addEventListener('click', async () => {
+      const rawText = document.getElementById('kw-cluster-text').value;
+      const keywords = rawText.split('\n').map(k => k.trim()).filter(Boolean);
+      if (keywords.length < 2) return alert('Enter at least 2 keywords to cluster');
+
+      const container = document.getElementById('kw-cluster-container');
+      const statusEl = document.getElementById('kw-cluster-status');
+      const countEl = document.getElementById('kw-cluster-count');
+
+      kwClusterBtn.disabled = true;
+      statusEl.textContent = 'Clustering...';
+      container.innerHTML = '';
+
+      try {
+        const response = await fetch('/api/keywords/cluster', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keywords })
+        });
+
+        if (!response.ok) throw new Error('Clustering failed');
+        const data = await response.json();
+
+        countEl.textContent = data.clusters.length;
+        statusEl.textContent = `Found ${data.clusters.length} clusters & ${data.unclustered.length} unclustered keywords.`;
+
+        let html = '';
+        data.clusters.forEach((c, idx) => {
+          html += `
+            <div style="background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
+                <h4 style="color:var(--accent); margin:0">${escapeHtml(c.label)}</h4>
+                <span class="badge success">${c.size} keywords</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.5rem">
+                ${c.keywords.map(k => `<span style="background:var(--bg); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:4px; font-size:0.85rem">${escapeHtml(k)}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        });
+
+        if (data.unclustered.length > 0) {
+          html += `
+            <div style="background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:1rem; opacity:0.8">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
+                <h4 style="color:var(--text-muted); margin:0">Unclustered Keywords</h4>
+                <span class="badge warning">${data.unclustered.length} items</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.5rem">
+                ${data.unclustered.map(k => `<span style="background:var(--bg); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:4px; font-size:0.85rem">${escapeHtml(k)}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        container.innerHTML = html;
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+      } finally {
+        kwClusterBtn.disabled = false;
+      }
+    });
+  }
+
+  // ==========================================
+  // Tool 19: Rank Tracker
+  // ==========================================
+  const rankCheckBtn = document.getElementById('rank-check-btn');
+  if (rankCheckBtn) {
+    rankCheckBtn.addEventListener('click', async () => {
+      const rawText = document.getElementById('rank-pairs-input').value;
+      const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+      const pairs = lines.map(line => {
+        const parts = line.split('|');
+        return { keyword: parts[0]?.trim(), targetUrl: parts[1]?.trim() };
+      }).filter(p => p.keyword && p.targetUrl);
+
+      if (!pairs.length) return alert('Enter at least one keyword | url pair');
+
+      const tbody = document.getElementById('rank-tbody');
+      const statusEl = document.getElementById('rank-status');
+      const countEl = document.getElementById('rank-count');
+
+      rankCheckBtn.disabled = true;
+      tbody.innerHTML = '';
+      statusEl.textContent = 'Checking rankings...';
+      let count = 0;
+
+      try {
+        const response = await fetch('/api/rank/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pairs })
+        });
+
+        await readSSE(response, (type, data) => {
+          if (type === 'progress') {
+            statusEl.textContent = data;
+          } else if (type === 'result') {
+            count++;
+            countEl.textContent = count;
+            const tr = document.createElement('tr');
+            let posBadgeClass = 'error';
+            if (data.position <= 3) posBadgeClass = 'success';
+            else if (data.position <= 10) posBadgeClass = 'warning';
+
+            tr.innerHTML = `
+              <td style="font-weight:bold; color:var(--text)">${escapeHtml(data.keyword)}</td>
+              <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis" title="${escapeHtml(data.targetUrl)}">${escapeHtml(data.targetUrl)}</td>
+              <td><span class="badge ${posBadgeClass}">#${data.position}</span></td>
+              <td>${data.serpFeatures.map(f => `<span class="badge info">${escapeHtml(f)}</span>`).join(' ') || '—'}</td>
+            `;
+            tbody.appendChild(tr);
+          } else if (type === 'complete') {
+            statusEl.textContent = `Completed ${count} rank checks. Saved to history.`;
+          }
+        });
+      } catch (e) {
+        statusEl.textContent = 'Connection failed: ' + e.message;
+      } finally {
+        rankCheckBtn.disabled = false;
+      }
+    });
+  }
+
+  // ==========================================
+  // Tool 20: Sitemap Tool
+  // ==========================================
+  const sitemapTabGen = document.getElementById('sitemap-tab-gen');
+  const sitemapTabVal = document.getElementById('sitemap-tab-val');
+  const sitemapPanelGen = document.getElementById('sitemap-panel-gen');
+  const sitemapPanelVal = document.getElementById('sitemap-panel-val');
+
+  if (sitemapTabGen && sitemapTabVal) {
+    sitemapTabGen.addEventListener('click', () => {
+      sitemapPanelGen.style.display = 'block';
+      sitemapPanelVal.style.display = 'none';
+      sitemapTabGen.style.background = 'var(--accent)';
+      sitemapTabVal.style.background = 'var(--bg-input)';
+    });
+    sitemapTabVal.addEventListener('click', () => {
+      sitemapPanelGen.style.display = 'none';
+      sitemapPanelVal.style.display = 'block';
+      sitemapTabVal.style.background = 'var(--accent)';
+      sitemapTabGen.style.background = 'var(--bg-input)';
+    });
+
+    // Generate XML
+    document.getElementById('sitemap-gen-btn').addEventListener('click', async () => {
+      const rawText = document.getElementById('sitemap-gen-urls').value;
+      const urls = rawText.split('\n').map(u => u.trim()).filter(Boolean);
+      if (!urls.length) return alert('Enter at least one URL');
+
+      const xmlArea = document.getElementById('sitemap-xml-output');
+      const placeholder = document.getElementById('sitemap-placeholder');
+      const valTable = document.getElementById('sitemap-val-table');
+
+      try {
+        const response = await fetch('/api/sitemap/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls })
+        });
+
+        const xmlText = await response.text();
+        placeholder.style.display = 'none';
+        valTable.style.display = 'none';
+        xmlArea.style.display = 'block';
+        xmlArea.value = xmlText;
+      } catch (e) {
+        alert('Generation failed: ' + e.message);
+      }
+    });
+
+    // Validate XML
+    const sitemapValBtn = document.getElementById('sitemap-val-btn');
+    sitemapValBtn.addEventListener('click', async () => {
+      const sitemapUrl = document.getElementById('sitemap-val-url').value.trim();
+      if (!sitemapUrl) return alert('Enter a sitemap XML URL');
+
+      const tbody = document.getElementById('sitemap-val-tbody');
+      const statusEl = document.getElementById('sitemap-status');
+      const xmlArea = document.getElementById('sitemap-xml-output');
+      const placeholder = document.getElementById('sitemap-placeholder');
+      const valTable = document.getElementById('sitemap-val-table');
+
+      sitemapValBtn.disabled = true;
+      tbody.innerHTML = '';
+      xmlArea.style.display = 'none';
+      placeholder.style.display = 'none';
+      valTable.style.display = 'table';
+      statusEl.textContent = 'Validating sitemap...';
+
+      try {
+        const response = await fetch('/api/sitemap/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sitemapUrl })
+        });
+
+        await readSSE(response, (type, data) => {
+          if (type === 'progress') {
+            statusEl.textContent = data;
+          } else if (type === 'result') {
+            const tr = document.createElement('tr');
+            let color = data.status >= 200 && data.status < 300 ? 'var(--intent-trans)' : 'var(--intent-err)';
+            tr.innerHTML = `
+              <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis">${escapeHtml(data.url)}</td>
+              <td style="font-weight:bold; color:${color}">${data.status || data.error}</td>
+              <td style="font-family:monospace">${data.responseTime ? data.responseTime + 'ms' : '—'}</td>
+            `;
+            tbody.appendChild(tr);
+          } else if (type === 'complete') {
+            statusEl.textContent = `Complete! Checked ${data.total} URLs. Healthy: ${data.healthy}, Broken: ${data.broken}.`;
+          }
+        });
+      } catch (e) {
+        statusEl.textContent = 'Validation error: ' + e.message;
+      } finally {
+        sitemapValBtn.disabled = false;
+      }
+    });
+  }
+
+  // ==========================================
+  // Tool 21: Robots.txt Analyzer & Tester
+  // ==========================================
+  const robotsBtn = document.getElementById('robots-btn');
+  if (robotsBtn) {
+    let parsedRules = [];
+    robotsBtn.addEventListener('click', async () => {
+      const url = document.getElementById('robots-url').value.trim();
+      if (!url) return alert('Enter a website URL or domain');
+
+      const tbody = document.getElementById('robots-tbody');
+      const statusEl = document.getElementById('robots-status');
+      const issuesEl = document.getElementById('robots-issues');
+
+      robotsBtn.disabled = true;
+      tbody.innerHTML = '';
+      issuesEl.innerHTML = '';
+      statusEl.textContent = 'Fetching & analyzing robots.txt...';
+
+      try {
+        const response = await fetch('/api/robots/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        if (!response.ok) throw new Error('Failed to analyze');
+        const data = await response.json();
+
+        parsedRules = data.rules || [];
+        statusEl.textContent = `Found ${parsedRules.length} directives.`;
+
+        // Render rules
+        let html = '';
+        parsedRules.forEach(r => {
+          let badgeClass = r.type === 'Disallow' ? 'error' : 'success';
+          html += `
+            <tr>
+              <td style="font-family:monospace; color:var(--accent)">${escapeHtml(r.agent)}</td>
+              <td><span class="badge ${badgeClass}">${escapeHtml(r.type)}</span></td>
+              <td style="font-family:monospace">${escapeHtml(r.path || '/')}</td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html || '<tr><td colspan="3" style="text-align:center; padding:2rem">No directives found</td></tr>';
+
+        // Render issues
+        (data.issues || []).forEach(issue => {
+          const colors = { error: 'var(--intent-err)', warning: 'var(--intent-comm)', success: 'var(--intent-trans)', info: 'var(--intent-info)' };
+          issuesEl.innerHTML += `
+            <div style="padding:0.6rem 1rem; border-radius:8px; border:1px solid ${colors[issue.type]}30; background:${colors[issue.type]}10; font-size:0.85rem">
+              ${escapeHtml(issue.message)}
+            </div>
+          `;
+        });
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+      } finally {
+        robotsBtn.disabled = false;
+      }
+    });
+
+    // Test Path Access
+    document.getElementById('robots-test-btn').addEventListener('click', async () => {
+      const testPath = document.getElementById('robots-test-path').value.trim();
+      const resultEl = document.getElementById('robots-test-result');
+      if (!testPath) return alert('Enter a path to test');
+
+      try {
+        const response = await fetch('/api/robots/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rules: parsedRules, testPath, userAgent: 'Googlebot' })
+        });
+
+        const data = await response.json();
+        if (data.allowed) {
+          resultEl.textContent = 'ALLOWED ✓';
+          resultEl.style.color = 'var(--intent-trans)';
+        } else {
+          resultEl.textContent = 'BLOCKED ✕';
+          resultEl.style.color = 'var(--intent-err)';
+        }
+      } catch (e) {
+        alert('Testing error: ' + e.message);
+      }
+    });
+  }
+
+  // ==========================================
+  // Tool 22: Duplicate Content Detector
+  // ==========================================
+  const dupCheckBtn = document.getElementById('dup-check-btn');
+  if (dupCheckBtn) {
+    dupCheckBtn.addEventListener('click', async () => {
+      const rawText = document.getElementById('dup-urls-input').value;
+      const urls = rawText.split('\n').map(u => u.trim()).filter(Boolean);
+      if (urls.length < 2) return alert('Enter at least 2 URLs to compare');
+
+      const tbody = document.getElementById('dup-tbody');
+      const statusEl = document.getElementById('dup-status');
+      const countEl = document.getElementById('dup-count');
+
+      dupCheckBtn.disabled = true;
+      tbody.innerHTML = '';
+      countEl.textContent = '0';
+      statusEl.textContent = 'Fetching pages & comparing content...';
+
+      try {
+        const response = await fetch('/api/duplicate/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls })
+        });
+
+        await readSSE(response, (type, data) => {
+          if (type === 'progress') {
+            statusEl.textContent = data;
+          } else if (type === 'complete') {
+            const pairs = data.duplicatePairs || [];
+            countEl.textContent = pairs.length;
+            statusEl.textContent = `Scan complete. Found ${pairs.length} duplicate pairs & ${data.thinPages.length} thin pages.`;
+
+            let html = '';
+            pairs.forEach(p => {
+              html += `
+                <tr>
+                  <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis" title="${escapeHtml(p.urlA)}">${escapeHtml(p.urlA)}</td>
+                  <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis" title="${escapeHtml(p.urlB)}">${escapeHtml(p.urlB)}</td>
+                  <td style="font-weight:bold; color:var(--intent-err)">${p.similarity}%</td>
+                  <td><span class="badge error">${escapeHtml(p.status)}</span></td>
+                </tr>
+              `;
+            });
+            tbody.innerHTML = html || '<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--intent-trans)">No duplicate content detected!</td></tr>';
+          }
+        });
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+      } finally {
+        dupCheckBtn.disabled = false;
+      }
+    });
+  }
+
+  // ==========================================
+  // Tool 23: Structured Data Validator
+  // ==========================================
+  const schemaValBtn = document.getElementById('schema-val-btn');
+  if (schemaValBtn) {
+    schemaValBtn.addEventListener('click', async () => {
+      const url = document.getElementById('schema-val-url').value.trim();
+      if (!url) return alert('Enter a webpage URL');
+
+      const container = document.getElementById('schema-val-container');
+      const statusEl = document.getElementById('schema-val-status');
+
+      schemaValBtn.disabled = true;
+      container.innerHTML = '';
+      statusEl.textContent = 'Extracting & validating JSON-LD schemas...';
+
+      try {
+        const response = await fetch('/api/schema/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        if (!response.ok) throw new Error('Validation request failed');
+        const data = await response.json();
+
+        statusEl.textContent = `Found ${data.totalSchemas} schema block(s).`;
+
+        if (data.schemas.length === 0) {
+          container.innerHTML = '<div style="text-align:center; color:var(--intent-comm); padding:2rem">No JSON-LD schemas detected on this page</div>';
+        } else {
+          let html = '';
+          data.schemas.forEach(s => {
+            html += `
+              <div style="background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
+                  <h4 style="color:var(--accent); margin:0">${escapeHtml(s.type)} Schema</h4>
+                  <span class="badge info">${s.propertiesCount} properties</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.5rem">
+                  ${s.issues.map(i => {
+                    const colors = { error: 'var(--intent-err)', warning: 'var(--intent-comm)', success: 'var(--intent-trans)', info: 'var(--intent-info)' };
+                    return `<div style="padding:0.4rem 0.8rem; border-radius:6px; background:${colors[i.type]}15; color:${colors[i.type]}; font-size:0.85rem">${escapeHtml(i.message)}</div>`;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          });
+          container.innerHTML = html;
+        }
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+      } finally {
+        schemaValBtn.disabled = false;
+      }
+    });
+  }
+
 });
+

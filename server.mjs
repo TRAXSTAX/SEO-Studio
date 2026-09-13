@@ -13,6 +13,14 @@ import { checkBrokenLinks } from './lib/broken-link-scanner.mjs';
 import { analyzeGscFile } from './lib/gsc-analyzer.mjs';
 import { saveAudit, getHistory, dbReady } from './lib/db.mjs';
 import { checkUrls } from './lib/bulk-status-checker.mjs';
+import { discoverKeywords } from './lib/keyword-discovery.mjs';
+import { clusterKeywords } from './lib/keyword-clusterer.mjs';
+import { checkRankings } from './lib/rank-tracker.mjs';
+import { generateSitemap, validateSitemap } from './lib/sitemap-tool.mjs';
+import { analyzeRobots, testPathAccess } from './lib/robots-analyzer.mjs';
+import { checkDuplicateContent } from './lib/duplicate-detector.mjs';
+import { validateSchema } from './lib/schema-validator.mjs';
+import { getRankHistory } from './lib/db.mjs';
 import puppeteer from 'puppeteer';
 import lighthouse from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
@@ -452,6 +460,167 @@ app.post('/api/headings/analyze', async (req, res) => {
     if (issues.length === 0) issues.push({ type: 'success', message: 'No structural issues detected!' });
     
     res.json({ headings, issues, total: headings.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// 17. Keyword Discovery
+// ==========================================
+app.post('/api/keywords/discover', async (req, res) => {
+  const { seed, language, country } = req.body;
+  if (!seed) return res.status(400).json({ error: 'Seed keyword is required' });
+  const send = createSSESender(res);
+  try {
+    const results = await discoverKeywords(seed, { language, country }, (msg) => send('progress', msg));
+    send('complete', results);
+  } catch (err) {
+    send('error', err.message);
+  } finally {
+    res.end();
+  }
+});
+
+// ==========================================
+// 18. Keyword Clustering
+// ==========================================
+app.post('/api/keywords/cluster', async (req, res) => {
+  const { keywords, threshold } = req.body;
+  if (!Array.isArray(keywords) || keywords.length === 0) {
+    return res.status(400).json({ error: 'Keywords array is required' });
+  }
+  try {
+    const results = clusterKeywords(keywords, threshold || 0.3);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// 19. Rank Tracker
+// ==========================================
+app.post('/api/rank/check', async (req, res) => {
+  const { pairs } = req.body;
+  if (!Array.isArray(pairs) || pairs.length === 0) {
+    return res.status(400).json({ error: 'Keyword/URL pairs array required' });
+  }
+  const send = createSSESender(res);
+  try {
+    const results = await checkRankings(
+      pairs,
+      (msg) => send('progress', msg),
+      (item) => send('result', item)
+    );
+    send('complete', { total: results.length });
+  } catch (err) {
+    send('error', err.message);
+  } finally {
+    res.end();
+  }
+});
+
+app.get('/api/rank/history', async (req, res) => {
+  const { keyword, url, days } = req.query;
+  try {
+    const history = await getRankHistory(keyword, url, days || 30);
+    res.json(history);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// 20. Sitemap Generator & Validator
+// ==========================================
+app.post('/api/sitemap/generate', (req, res) => {
+  const { urls } = req.body;
+  if (!Array.isArray(urls) || urls.length === 0) {
+    return res.status(400).json({ error: 'URLs array is required' });
+  }
+  try {
+    const xml = generateSitemap(urls);
+    res.type('application/xml').send(xml);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/sitemap/validate', async (req, res) => {
+  const { sitemapUrl } = req.body;
+  if (!sitemapUrl) return res.status(400).json({ error: 'Sitemap URL is required' });
+  const send = createSSESender(res);
+  try {
+    const summary = await validateSitemap(
+      sitemapUrl,
+      (msg) => send('progress', msg),
+      (item) => send('result', item)
+    );
+    send('complete', summary);
+  } catch (err) {
+    send('error', err.message);
+  } finally {
+    res.end();
+  }
+});
+
+// ==========================================
+// 21. Robots.txt Analyzer
+// ==========================================
+app.post('/api/robots/analyze', async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL is required' });
+  try {
+    const results = await analyzeRobots(url);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/robots/test', (req, res) => {
+  const { rules, testPath, userAgent } = req.body;
+  try {
+    const result = testPathAccess(rules, testPath, userAgent);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// 22. Duplicate Content Detector
+// ==========================================
+app.post('/api/duplicate/check', async (req, res) => {
+  const { urls } = req.body;
+  if (!Array.isArray(urls) || urls.length === 0) {
+    return res.status(400).json({ error: 'URLs array is required' });
+  }
+  const send = createSSESender(res);
+  try {
+    const summary = await checkDuplicateContent(
+      urls,
+      (msg) => send('progress', msg),
+      (item) => send('result', item)
+    );
+    send('complete', summary);
+  } catch (err) {
+    send('error', err.message);
+  } finally {
+    res.end();
+  }
+});
+
+// ==========================================
+// 23. Structured Data Validator
+// ==========================================
+app.post('/api/schema/validate', async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL is required' });
+  try {
+    const results = await validateSchema(url);
+    res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
