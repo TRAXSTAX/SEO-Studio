@@ -6,6 +6,7 @@
   <title>Enterprise SEO Studio</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="style.css">
+<style>details > summary::-webkit-details-marker { display: none; }</style>
 </head>
 <body>
   <canvas id="bg-canvas"></canvas>
@@ -16,71 +17,40 @@
         <div class="logo-icon"></div>
         <h2>Enterprise SEO</h2>
       </div>
+      <div class="cmd-palette-shortcut" style="padding: 0 2rem 1rem; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="document.getElementById('cmd-palette').classList.add('active'); document.getElementById('cmd-input').focus();">
+        <span>Search tools...</span>
+        <kbd style="background: rgba(255,255,255,0.1); padding: 3px 6px; border-radius: 4px; font-family: monospace; font-size: 0.75rem;">Ctrl K</kbd>
+      </div>
       <ul class="nav-links">
-        <li class="nav-item active" tabindex="0" role="button" data-target="master-audit">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Master Audit
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="log-analyzer">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-          Log Analyzer
-        </li>
+  <li class="nav-category">
+    <details open>
+      <summary class="nav-section-title" style="cursor:pointer; list-style:none; outline:none;">
+        <span>📊 Search Analytics & Intent</span>
+        <span class="badge" style="margin-left:auto">3</span>
+      </summary>
+      <ul style="list-style:none; padding:0;">
         <li class="nav-item" tabindex="0" role="button" data-target="gsc-analyzer">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           GSC Analyzer
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="content-grader">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 3v5h5M16 13H8M16 17H8M10 9H8"/></svg>
-          Content Grader
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="web-vitals">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m12 16 4-4-4-4"/><path d="M8 12h8"/></svg>
-          Web Vitals
         </li>
         <li class="nav-item" tabindex="0" role="button" data-target="intent-mapper">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Intent Mapper
         </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="site-crawler">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          Site Crawler
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="link-finder">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          Internal Link Finder
-        </li>
         <li class="nav-item" tabindex="0" role="button" data-target="cannibalization-checker">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9"/><path d="M15 13l-3-3"/><path d="M20 4l-4.5 4.5"/><path d="M14 4l-4 4"/></svg>
           Cannibalization Checker
         </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="schema-generator">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          Schema Generator
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="meta-optimizer">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          Meta Tag Optimizer
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="broken-links">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07L16 20"/><line x1="8" y1="2" x2="16" y2="10"/><line x1="2" y1="8" x2="10" y2="16"/></svg>
-          Broken Links
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="history-trends">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-          History & Trends
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="serp-previewer">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          SERP Previewer
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="bulk-status">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          Bulk Status Checker
-        </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="heading-analyzer">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="M17 10l3 3-3 3"/></svg>
-          Heading Analyzer
-        </li>
+      </ul>
+    </details>
+  </li>
+  <li class="nav-category">
+    <details open>
+      <summary class="nav-section-title" style="cursor:pointer; list-style:none; outline:none;">
+        <span>🔍 Keyword Engineering</span>
+        <span class="badge" style="margin-left:auto">3</span>
+      </summary>
+      <ul style="list-style:none; padding:0;">
         <li class="nav-item" tabindex="0" role="button" data-target="keyword-discovery">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           Keyword Discovery
@@ -93,6 +63,46 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           Rank Tracker
         </li>
+      </ul>
+    </details>
+  </li>
+  <li class="nav-category">
+    <details open>
+      <summary class="nav-section-title" style="cursor:pointer; list-style:none; outline:none;">
+        <span>⚡ Technical & Infrastructure</span>
+        <span class="badge" style="margin-left:auto">5</span>
+      </summary>
+      <ul style="list-style:none; padding:0;">
+        <li class="nav-item active" tabindex="0" role="button" data-target="master-audit">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Master Audit
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="web-vitals">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m12 16 4-4-4-4"/><path d="M8 12h8"/></svg>
+          Web Vitals
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="site-crawler">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Site Crawler
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="bulk-status">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Bulk Status Checker
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="heading-analyzer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="M17 10l3 3-3 3"/></svg>
+          Heading Analyzer
+        </li>
+      </ul>
+    </details>
+  </li>
+  <li class="nav-category">
+    <details open>
+      <summary class="nav-section-title" style="cursor:pointer; list-style:none; outline:none;">
+        <span>🔗 Indexing & Architecture</span>
+        <span class="badge" style="margin-left:auto">4</span>
+      </summary>
+      <ul style="list-style:none; padding:0;">
         <li class="nav-item" tabindex="0" role="button" data-target="sitemap-tool">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           Sitemap Generator & Validator
@@ -101,15 +111,60 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           Robots.txt Analyzer
         </li>
-        <li class="nav-item" tabindex="0" role="button" data-target="duplicate-detector">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Duplicate Content Detector
+        <li class="nav-item" tabindex="0" role="button" data-target="link-finder">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Internal Link Finder
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="broken-links">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07L16 20"/><line x1="8" y1="2" x2="16" y2="10"/><line x1="2" y1="8" x2="10" y2="16"/></svg>
+          Broken Links
+        </li>
+      </ul>
+    </details>
+  </li>
+  <li class="nav-category">
+    <details open>
+      <summary class="nav-section-title" style="cursor:pointer; list-style:none; outline:none;">
+        <span>📝 Content & Structured Data</span>
+        <span class="badge" style="margin-left:auto">8</span>
+      </summary>
+      <ul style="list-style:none; padding:0;">
+        <li class="nav-item" tabindex="0" role="button" data-target="content-grader">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 3v5h5M16 13H8M16 17H8M10 9H8"/></svg>
+          Content Grader
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="meta-optimizer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          Meta Tag Optimizer
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="schema-generator">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Schema Generator
         </li>
         <li class="nav-item" tabindex="0" role="button" data-target="schema-validator">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
           Structured Data Validator
         </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="duplicate-detector">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Duplicate Content Detector
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="log-analyzer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          Log Analyzer
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="history-trends">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          History & Trends
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="serp-previewer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          SERP Previewer
+        </li>
       </ul>
+    </details>
+  </li>
+</ul>
     </nav>
 
     <!-- Main Viewport -->
@@ -1005,5 +1060,14 @@
   <script src="/bg-3d.js?v=1"></script>
   <script src="/3d-effects.js?v=1"></script>
   <script src="/app.js?v=5"></script>
+  <div class="cmd-palette-backdrop" id="cmd-palette">
+    <div class="cmd-palette-modal">
+      <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);">
+        <input type="text" id="cmd-input" placeholder="Search tools..." style="width:100%; background:transparent; border:none; color:var(--text); font-size:1.1rem; outline:none;" autocomplete="off" />
+      </div>
+      <div id="cmd-results" style="max-height: 400px; overflow-y: auto;">
+      </div>
+    </div>
+  </div>
 </body>
 </html>

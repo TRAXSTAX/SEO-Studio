@@ -165,6 +165,189 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        
         animate();
+    };
+
+    // 4. Command Palette
+    createCommandPalette();
+
+    function createCommandPalette() {
+        const overlay = document.createElement('div');
+        overlay.id = 'cmd-palette-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(5px);z-index:9998;display:none;align-items:flex-start;justify-content:center;padding-top:10vh;';
+        
+        const palette = document.createElement('div');
+        palette.id = 'cmd-palette';
+        palette.style.cssText = 'width:600px;max-width:90%;background:var(--bg-panel,#1e1e2f);border:1px solid var(--border,#333);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);overflow:hidden;z-index:9999;transform:scale(0.95);opacity:0;transition:all 0.2s ease;';
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Search tools... (e.g. Master Audit)';
+        input.style.cssText = 'width:100%;padding:1.5rem;font-size:1.2rem;border:none;border-bottom:1px solid var(--border,#333);background:transparent;color:var(--text,#fff);outline:none;box-sizing:border-box;';
+        
+        const list = document.createElement('ul');
+        list.style.cssText = 'list-style:none;margin:0;padding:0;max-height:400px;overflow-y:auto;';
+        
+        palette.appendChild(input);
+        palette.appendChild(list);
+        overlay.appendChild(palette);
+        document.body.appendChild(overlay);
+
+        const tools = Array.from(document.querySelectorAll('.nav-item')).map(item => ({
+            name: item.innerText.trim(),
+            target: item.getAttribute('data-target'),
+            element: item
+        }));
+
+        let activeIndex = 0;
+
+        function renderList(filter = '') {
+            list.innerHTML = '';
+            const filtered = tools.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
+            filtered.forEach((t, index) => {
+                const li = document.createElement('li');
+                li.innerText = t.name;
+                li.style.cssText = `padding:1rem 1.5rem;cursor:pointer;color:var(--text,#fff);border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.2s;`;
+                if (index === activeIndex) {
+                    li.style.background = 'var(--accent, #007bff)';
+                }
+                li.addEventListener('mouseenter', () => {
+                    activeIndex = index;
+                    renderList(filter);
+                });
+                li.addEventListener('click', () => {
+                    selectTool(t);
+                });
+                list.appendChild(li);
+            });
+            if (filtered.length === 0) {
+                const li = document.createElement('li');
+                li.innerText = 'No tools found.';
+                li.style.cssText = 'padding:1rem 1.5rem;color:var(--text-muted,#888);';
+                list.appendChild(li);
+            }
+        }
+
+        function selectTool(t) {
+            closePalette();
+            t.element.click();
+        }
+
+        function openPalette() {
+            overlay.style.display = 'flex';
+            setTimeout(() => {
+                palette.style.transform = 'scale(1)';
+                palette.style.opacity = '1';
+                input.focus();
+                input.value = '';
+                activeIndex = 0;
+                renderList();
+            }, 10);
+        }
+
+        function closePalette() {
+            palette.style.transform = 'scale(0.95)';
+            palette.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 200);
+        }
+
+        input.addEventListener('input', (e) => {
+            activeIndex = 0;
+            renderList(e.target.value);
+        });
+
+        input.addEventListener('keydown', (e) => {
+            const filter = input.value;
+            const filtered = tools.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % filtered.length;
+                renderList(filter);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + filtered.length) % filtered.length;
+                renderList(filter);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (filtered[activeIndex]) {
+                    selectTool(filtered[activeIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                closePalette();
+            }
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closePalette();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                if (overlay.style.display === 'flex') {
+                    closePalette();
+                } else {
+                    openPalette();
+                }
+            }
+        });
+    }
+
+    // 5. SEO Particle Pulse Effects
+    window.triggerPulseEffect = function(element) {
+        if (!element) return;
+        const pulse = document.createElement('div');
+        pulse.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;border-radius:50%;background:rgba(0,170,255,0.4);z-index:-1;animation:seoPulse 1s ease-out forwards;pointer-events:none;';
+        
+        if (getComputedStyle(element).position === 'static') {
+            element.style.position = 'relative';
+        }
+        
+        element.appendChild(pulse);
+        
+        if (!document.getElementById('seo-pulse-style')) {
+            const style = document.createElement('style');
+            style.id = 'seo-pulse-style';
+            style.innerHTML = `
+                @keyframes seoPulse {
+                    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+                }
+                .score-ring-animate {
+                    transition: stroke-dashoffset 1.5s ease-out, stroke 1.5s ease-out;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        setTimeout(() => pulse.remove(), 1000);
+    };
+
+    // 6. Score ring animations
+    window.animateScoreRing = function(circleElement, score, circumference) {
+        if (!circleElement) return;
+        
+        circleElement.style.strokeDasharray = `${circumference} ${circumference}`;
+        circleElement.style.strokeDashoffset = circumference;
+        circleElement.classList.add('score-ring-animate');
+        
+        // Force reflow
+        void circleElement.getBoundingClientRect();
+        
+        setTimeout(() => {
+            const offset = circumference - (score / 100) * circumference;
+            circleElement.style.strokeDashoffset = offset;
+            
+            // color based on score
+            if (score >= 90) circleElement.style.stroke = '#00ff00';
+            else if (score >= 50) circleElement.style.stroke = '#ffaa00';
+            else circleElement.style.stroke = '#ff2a2a';
+        }, 50);
     };
 });
