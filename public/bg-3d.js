@@ -41,9 +41,11 @@
     let particles, dodecahedron, podiums = [], rings = [], graphLines;
     let floatingNumbers = [];
     let activeSignalWaves = [];
+    let isAnimating = false;
+    let animFrameId = null;
 
     init();
-    animate();
+    startAnimation();
 
     function init() {
         scene = new THREE.Scene();
@@ -149,11 +151,98 @@
         // Event Listeners
         window.addEventListener('resize', onWindowResize, false);
         document.addEventListener('mousemove', onDocumentMouseMove, false);
+        document.addEventListener('visibilitychange', onVisibilityChange, false);
+        canvas.addEventListener('webglcontextlost', onContextLost, false);
+        canvas.addEventListener('webglcontextrestored', onContextRestored, false);
+        window.addEventListener('beforeunload', cleanupThreeResources, false);
 
         // =========================================================================
         // REQUIREMENT 2: Form submission & click handlers to trigger signal waves
         // =========================================================================
         setupInteractiveSignalTriggers();
+    }
+
+    function onVisibilityChange() {
+        if (document.hidden) {
+            stopAnimation();
+        } else {
+            startAnimation();
+        }
+    }
+
+    function startAnimation() {
+        if (!isAnimating) {
+            isAnimating = true;
+            animFrameId = requestAnimationFrame(animate);
+        }
+    }
+
+    function stopAnimation() {
+        isAnimating = false;
+        if (animFrameId) {
+            cancelAnimationFrame(animFrameId);
+            animFrameId = null;
+        }
+    }
+
+    function onContextLost(event) {
+        event.preventDefault();
+        stopAnimation();
+    }
+
+    function onContextRestored() {
+        startAnimation();
+    }
+
+    function disposeObject(obj) {
+        if (!obj) return;
+        if (obj.geometry) {
+            obj.geometry.dispose();
+        }
+        if (obj.material) {
+            if (Array.isArray(obj.material)) {
+                obj.material.forEach(m => {
+                    if (m.map) m.map.dispose();
+                    m.dispose();
+                });
+            } else {
+                if (obj.material.map) obj.material.map.dispose();
+                obj.material.dispose();
+            }
+        }
+    }
+
+    function cleanupThreeResources() {
+        stopAnimation();
+        if (particles) disposeObject(particles);
+        if (dodecahedron) disposeObject(dodecahedron);
+        if (podiums) {
+            podiums.forEach(p => disposeObject(p));
+            podiums = [];
+        }
+        if (graphLines) disposeObject(graphLines);
+        if (rings) {
+            rings.forEach(r => {
+                if (r.geometry) r.geometry.dispose();
+                if (r.mesh) disposeObject(r.mesh);
+            });
+            rings = [];
+        }
+        if (floatingNumbers) {
+            floatingNumbers.forEach(item => {
+                if (item.group) item.group.traverse(disposeObject);
+            });
+            floatingNumbers = [];
+        }
+        if (activeSignalWaves) {
+            activeSignalWaves.forEach(wave => {
+                if (wave.group) wave.group.traverse(disposeObject);
+            });
+            activeSignalWaves = [];
+        }
+        if (renderer) {
+            renderer.dispose();
+        }
     }
 
     // Helper: Create Canvas Texture for Neon Rank Numbers
@@ -488,13 +577,7 @@
             if (progress >= 1.0) {
                 // Clean up WebGL resources
                 scene.remove(wave.group);
-                wave.group.traverse((obj) => {
-                    if (obj.geometry) obj.geometry.dispose();
-                    if (obj.material) {
-                        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
-                        else obj.material.dispose();
-                    }
-                });
+                wave.group.traverse(disposeObject);
                 activeSignalWaves.splice(i, 1);
                 continue;
             }
@@ -563,7 +646,10 @@
         windowHalfY = window.innerHeight / 2;
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        if (renderer) {
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
     }
 
     function onDocumentMouseMove(event) {
@@ -572,7 +658,8 @@
     }
 
     function animate() {
-        requestAnimationFrame(animate);
+        if (!isAnimating) return;
+        animFrameId = requestAnimationFrame(animate);
         render();
     }
 
@@ -628,6 +715,8 @@
         // REQUIREMENT 2: Active backlink pulse waves animation
         updateSignalWaves();
 
-        renderer.render(scene, camera);
+        if (renderer && scene && camera) {
+            renderer.render(scene, camera);
+        }
     }
 })();

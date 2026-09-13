@@ -5,6 +5,19 @@ document.addEventListener('DOMContentLoaded', () => {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   };
 
+  // Debounce utility for performance optimization
+  function debounce(func, wait = 150) {
+    let timeout;
+    return function executedFunction(...args) {
+      const context = this;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+  window.debounce = debounce;
+
   // ==========================================
   // Pixel Width & Intent/KD Dynamic Helpers
   // ==========================================
@@ -111,7 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // Add active to clicked
       item.classList.add('active');
       const target = item.getAttribute('data-target');
-      document.getElementById(target).classList.add('active');
+      const targetEl = document.getElementById(target);
+      if (targetEl) targetEl.classList.add('active');
     };
 
     item.addEventListener('click', activateTab);
@@ -172,18 +186,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('file-input');
   
-  dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'white'; });
-  dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = 'var(--accent)');
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.style.borderColor = 'var(--accent)';
-    if (e.dataTransfer.files.length) handleLogUpload(e.dataTransfer.files[0]);
-  });
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files.length) handleLogUpload(fileInput.files[0]);
-    fileInput.value = '';
-  });
+  if (dropZone) {
+    if (fileInput) dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'white'; });
+    dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = 'var(--accent)');
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = 'var(--accent)';
+      if (e.dataTransfer.files.length) handleLogUpload(e.dataTransfer.files[0]);
+    });
+  }
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) handleLogUpload(fileInput.files[0]);
+      fileInput.value = '';
+    });
+  }
 
   // ==========================================
   // Tool 1.5: GSC Analyzer
@@ -200,8 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const status = document.getElementById('gsc-status');
       const resultsContainer = document.getElementById('gsc-results-container');
       
-      status.innerText = 'Uploading and analyzing GSC data...';
-      resultsContainer.style.display = 'none';
+      if (status) status.innerText = 'Uploading and analyzing GSC data...';
+      if (resultsContainer) resultsContainer.style.display = 'none';
 
       try {
         const response = await fetch('/api/gsc/upload', {
@@ -216,49 +234,55 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const data = await response.json();
         
-        status.innerText = `Analysis Complete! Processed ${data.totalRows} queries.`;
-        resultsContainer.style.display = 'flex';
+        if (status) status.innerText = `Analysis Complete! Processed ${data.totalRows} queries.`;
+        if (resultsContainer) resultsContainer.style.display = 'flex';
         
         // 1. Low-Hanging Fruit
         const lhTbody = document.getElementById('gsc-low-hanging');
-        let lhHtml = '';
-        data.lowHangingFruit.forEach(row => {
-          lhHtml += `<tr>
-            <td>${escapeHtml(row.query)}</td>
-            <td>${row.impressions.toLocaleString()}</td>
-            <td><span class="badge warning">${row.position.toFixed(1)}</span></td>
-          </tr>`;
-        });
-        lhTbody.innerHTML = lhHtml;
+        if (lhTbody) {
+          let lhHtml = '';
+          data.lowHangingFruit.forEach(row => {
+            lhHtml += `<tr>
+              <td>${escapeHtml(row.query)}</td>
+              <td>${row.impressions.toLocaleString()}</td>
+              <td><span class="badge warning">${row.position.toFixed(1)}</span></td>
+            </tr>`;
+          });
+          lhTbody.innerHTML = lhHtml;
+        }
 
         // 2. CTR Opportunities
         const ctrTbody = document.getElementById('gsc-ctr-opps');
-        let ctrHtml = '';
-        data.ctrOpps.forEach(row => {
-          ctrHtml += `<tr>
-            <td>${escapeHtml(row.query)}</td>
-            <td><span class="badge error">${row.ctr.toFixed(2)}%</span></td>
-            <td>${row.position.toFixed(1)}</td>
-          </tr>`;
-        });
-        ctrTbody.innerHTML = ctrHtml;
+        if (ctrTbody) {
+          let ctrHtml = '';
+          data.ctrOpps.forEach(row => {
+            ctrHtml += `<tr>
+              <td>${escapeHtml(row.query)}</td>
+              <td><span class="badge error">${row.ctr.toFixed(2)}%</span></td>
+              <td>${row.position.toFixed(1)}</td>
+            </tr>`;
+          });
+          ctrTbody.innerHTML = ctrHtml;
+        }
 
         // 3. Top Winners
         const winnersTbody = document.getElementById('gsc-winners');
-        let winnersHtml = '';
-        data.topWinners.forEach(row => {
-          winnersHtml += `<tr>
-            <td>${escapeHtml(row.query)}</td>
-            <td>${row.clicks.toLocaleString()}</td>
-            <td>${row.impressions.toLocaleString()}</td>
-            <td>${row.ctr.toFixed(2)}%</td>
-            <td><span class="badge success">${row.position.toFixed(1)}</span></td>
-          </tr>`;
-        });
-        winnersTbody.innerHTML = winnersHtml;
+        if (winnersTbody) {
+          let winnersHtml = '';
+          data.topWinners.forEach(row => {
+            winnersHtml += `<tr>
+              <td>${escapeHtml(row.query)}</td>
+              <td>${row.clicks.toLocaleString()}</td>
+              <td>${row.impressions.toLocaleString()}</td>
+              <td>${row.ctr.toFixed(2)}%</td>
+              <td><span class="badge success">${row.position.toFixed(1)}</span></td>
+            </tr>`;
+          });
+          winnersTbody.innerHTML = winnersHtml;
+        }
         
       } catch (err) {
-        status.innerText = 'Error: ' + err.message;
+        if (status) status.innerText = 'Error: ' + err.message;
       }
     });
   }
@@ -267,7 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData();
     formData.append('logfile', file);
     
-    document.getElementById('log-results').style.display = 'none';
+    const logResults = document.getElementById('log-results');
+    if (logResults) logResults.style.display = 'none';
     const pText = document.getElementById('log-progress-text');
     const pFill = document.getElementById('log-progress-fill');
     
@@ -275,185 +300,206 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch('/api/logs/upload', { method: 'POST', body: formData });
       await readSSE(response, (type, data) => {
         if (type === 'progress') {
-          pText.textContent = data;
+          if (pText) pText.textContent = data;
           const match = data.match(/(\d+)%/);
-          if (match) pFill.style.width = match[1] + '%';
+          if (match && pFill) pFill.style.width = match[1] + '%';
         } else if (type === 'complete') {
-          pText.textContent = 'Analysis Complete';
-          pFill.style.width = '100%';
-          document.getElementById('log-results').style.display = 'grid';
-          document.getElementById('total-hits').textContent = data.totalLines.toLocaleString();
-          document.getElementById('bot-percentage').textContent = ((data.botHits / data.totalLines) * 100).toFixed(1) + '%';
+          if (pText) pText.textContent = 'Analysis Complete';
+          if (pFill) pFill.style.width = '100%';
+          if (logResults) logResults.style.display = 'grid';
+          const totalHits = document.getElementById('total-hits');
+          if (totalHits) totalHits.textContent = data.totalLines.toLocaleString();
+          const botPct = document.getElementById('bot-percentage');
+          if (botPct) botPct.textContent = ((data.botHits / data.totalLines) * 100).toFixed(1) + '%';
           
           let topBot = 'None', topCount = 0;
           for (const [bot, count] of Object.entries(data.botAgents)) {
             if (count > topCount) { topCount = count; topBot = bot; }
           }
-          document.getElementById('top-bot').textContent = topBot;
+          const topBotEl = document.getElementById('top-bot');
+          if (topBotEl) topBotEl.textContent = topBot;
         } else if (type === 'error') {
-          pText.textContent = 'Error: ' + data;
-          pText.style.color = 'var(--intent-err)';
+          if (pText) {
+            pText.textContent = 'Error: ' + data;
+            pText.style.color = 'var(--intent-err)';
+          }
         }
       });
     } catch (e) {
-      pText.textContent = 'Upload failed';
+      if (pText) pText.textContent = 'Upload failed';
     }
   }
 
   // ==========================================
   // Tool 2: Content Grader
   // ==========================================
-  document.getElementById('grader-btn').addEventListener('click', async () => {
-    const keyword = document.getElementById('grader-keyword').value;
-    const draft = document.getElementById('grader-draft').value;
-    const status = document.getElementById('grader-status');
-    
-    if (!keyword) return alert('Enter a keyword');
-    document.getElementById('grader-btn').disabled = true;
-    
-    try {
-      const response = await fetch('/api/grader/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword, draft })
-      });
-      await readSSE(response, (type, data) => {
-        if (type === 'progress') {
-          status.textContent = data;
-        } else if (type === 'complete') {
-          status.textContent = 'Analysis Complete';
-          
-          // Calculate Grade
-          const gradeEl = document.getElementById('grade-circle');
-          let grade = 'F', color = 'var(--intent-err)';
-          if (data.score > 80) { grade = 'A+'; color = 'var(--intent-trans)'; }
-          else if (data.score > 60) { grade = 'B'; color = 'var(--intent-info)'; }
-          else if (data.score > 40) { grade = 'C'; color = 'var(--intent-comm)'; }
-          gradeEl.textContent = grade;
-          gradeEl.style.borderColor = color;
-          gradeEl.style.color = color;
-          
-          const ul = document.getElementById('missing-terms');
-          ul.innerHTML = '';
-          (data.missingEntities || data.missing || []).slice(0, 10).forEach(term => {
-            const li = document.createElement('li');
-            li.innerHTML = `${term} <span>+score</span>`;
-            ul.appendChild(li);
-          });
-          document.getElementById('grader-btn').disabled = false;
-        } else if (type === 'error') {
-          status.textContent = 'Error: ' + data;
-          document.getElementById('grader-btn').disabled = false;
-        }
-      });
-    } catch (e) {
-      status.textContent = 'Connection failed';
-      document.getElementById('grader-btn').disabled = false;
-    }
-  });
+  const graderBtn = document.getElementById('grader-btn');
+  if (graderBtn) {
+    graderBtn.addEventListener('click', async () => {
+      const keyword = document.getElementById('grader-keyword')?.value;
+      const draft = document.getElementById('grader-draft')?.value;
+      const status = document.getElementById('grader-status');
+      
+      if (!keyword) return alert('Enter a keyword');
+      graderBtn.disabled = true;
+      
+      try {
+        const response = await fetch('/api/grader/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword, draft })
+        });
+        await readSSE(response, (type, data) => {
+          if (type === 'progress') {
+            if (status) status.textContent = data;
+          } else if (type === 'complete') {
+            if (status) status.textContent = 'Analysis Complete';
+            
+            // Calculate Grade
+            const gradeEl = document.getElementById('grade-circle');
+            let grade = 'F', color = 'var(--intent-err)';
+            if (data.score > 80) { grade = 'A+'; color = 'var(--intent-trans)'; }
+            else if (data.score > 60) { grade = 'B'; color = 'var(--intent-info)'; }
+            else if (data.score > 40) { grade = 'C'; color = 'var(--intent-comm)'; }
+            if (gradeEl) {
+              gradeEl.textContent = grade;
+              gradeEl.style.borderColor = color;
+              gradeEl.style.color = color;
+            }
+            
+            const ul = document.getElementById('missing-terms');
+            if (ul) {
+              ul.innerHTML = '';
+              (data.missingEntities || data.missing || []).slice(0, 10).forEach(term => {
+                const li = document.createElement('li');
+                li.innerHTML = `${term} <span>+score</span>`;
+                ul.appendChild(li);
+              });
+            }
+            graderBtn.disabled = false;
+          } else if (type === 'error') {
+            if (status) status.textContent = 'Error: ' + data;
+            graderBtn.disabled = false;
+          }
+        });
+      } catch (e) {
+        if (status) status.textContent = 'Connection failed';
+        graderBtn.disabled = false;
+      }
+    });
+  }
 
   // ==========================================
   // Tool 3: Web Vitals
   // ==========================================
-  document.getElementById('vitals-btn').addEventListener('click', async () => {
-    const url = document.getElementById('vitals-url').value;
-    const status = document.getElementById('vitals-status');
-    if (!url) return alert('Enter a URL');
-    
-    document.getElementById('vitals-btn').disabled = true;
-    document.getElementById('vitals-results').style.display = 'none';
-    
-    try {
-      const response = await fetch('/api/vitals/audit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
-      await readSSE(response, (type, data) => {
-        if (type === 'progress') {
-          status.textContent = data;
-        } else if (type === 'complete') {
-          status.textContent = 'Audit Complete';
-          document.getElementById('vitals-results').style.display = 'grid';
-          document.getElementById('vitals-score').textContent = data.score;
-          document.getElementById('vitals-lcp').textContent = data.metrics?.lcp?.displayValue || 'N/A';
-          document.getElementById('vitals-cls').textContent = data.metrics?.cls?.displayValue || 'N/A';
-          if (window.renderCWVSpeedDials) {
-            window.renderCWVSpeedDials(document.getElementById('vitals-results'), {
-              score: data.score,
-              lcp: data.metrics?.lcp?.displayValue,
-              cls: data.metrics?.cls?.displayValue,
-              tbt: data.metrics?.tbt?.displayValue
-            });
+  const vitalsBtn = document.getElementById('vitals-btn');
+  if (vitalsBtn) {
+    vitalsBtn.addEventListener('click', async () => {
+      const url = document.getElementById('vitals-url')?.value;
+      const status = document.getElementById('vitals-status');
+      if (!url) return alert('Enter a URL');
+      
+      vitalsBtn.disabled = true;
+      const vitalsResults = document.getElementById('vitals-results');
+      if (vitalsResults) vitalsResults.style.display = 'none';
+      
+      try {
+        const response = await fetch('/api/vitals/audit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        await readSSE(response, (type, data) => {
+          if (type === 'progress') {
+            if (status) status.textContent = data;
+          } else if (type === 'complete') {
+            if (status) status.textContent = 'Audit Complete';
+            if (vitalsResults) vitalsResults.style.display = 'grid';
+            const vitalsScore = document.getElementById('vitals-score');
+            if (vitalsScore) vitalsScore.textContent = data.score;
+            const vitalsLcp = document.getElementById('vitals-lcp');
+            if (vitalsLcp) vitalsLcp.textContent = data.metrics?.lcp?.displayValue || 'N/A';
+            const vitalsCls = document.getElementById('vitals-cls');
+            if (vitalsCls) vitalsCls.textContent = data.metrics?.cls?.displayValue || 'N/A';
+            if (window.renderCWVSpeedDials && vitalsResults) {
+              window.renderCWVSpeedDials(vitalsResults, {
+                score: data.score,
+                lcp: data.metrics?.lcp?.displayValue,
+                cls: data.metrics?.cls?.displayValue,
+                tbt: data.metrics?.tbt?.displayValue
+              });
+            }
+            vitalsBtn.disabled = false;
+          } else if (type === 'error') {
+            if (status) status.textContent = 'Error: ' + data;
+            vitalsBtn.disabled = false;
           }
-          document.getElementById('vitals-btn').disabled = false;
-        } else if (type === 'error') {
-          status.textContent = 'Error: ' + data;
-          document.getElementById('vitals-btn').disabled = false;
-        }
-      });
-    } catch (e) {
-      status.textContent = 'Connection failed';
-      document.getElementById('vitals-btn').disabled = false;
-    }
-  });
+        });
+      } catch (e) {
+        if (status) status.textContent = 'Connection failed';
+        vitalsBtn.disabled = false;
+      }
+    });
+  }
 
   // ==========================================
   // Tool 4: Intent Mapper
   // ==========================================
-  document.getElementById('intent-btn').addEventListener('click', async () => {
-    const raw = document.getElementById('intent-keywords').value;
-    const keywords = raw.split('\n').map(k => k.trim()).filter(k => k.length > 0);
-    if (!keywords.length) return alert('Enter keywords');
-    
-    const btn = document.getElementById('intent-btn');
-    const tbody = document.getElementById('intent-tbody');
-    const status = document.getElementById('intent-status');
-    const count = document.getElementById('intent-count');
-    
-    btn.disabled = true;
-    tbody.innerHTML = '';
-    let parsedCount = 0;
-    count.textContent = `0 / ${keywords.length}`;
-    
-    try {
-      const response = await fetch('/api/intent/map', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keywords })
-      });
-      await readSSE(response, (type, data) => {
-        if (type === 'progress') {
-          status.textContent = data;
-        } else if (type === 'result') {
-          parsedCount++;
-          count.textContent = `${parsedCount} / ${keywords.length}`;
-          
-          const kd = calculateKD(data.keyword);
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td style="font-weight: 500">${escapeHtml(data.keyword)}</td>
-            <td>${renderIntentBadge(data.intent)}</td>
-            <td>${renderKDFlameMeter(kd)}</td>
-            <td>
-              <div style="font-size:0.85rem; font-weight:bold">${data.confidence}% Match</div>
-              <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${data.confidence}%"></div></div>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        } else if (type === 'complete') {
-          status.textContent = 'Mapping Complete';
-          btn.disabled = false;
-        } else if (type === 'error') {
-          status.textContent = 'Error: ' + data;
-          btn.disabled = false;
-        }
-      });
-    } catch (e) {
-      status.textContent = 'Connection failed';
-      btn.disabled = false;
-    }
-  });
+  const intentBtn = document.getElementById('intent-btn');
+  if (intentBtn) {
+    intentBtn.addEventListener('click', async () => {
+      const raw = document.getElementById('intent-keywords')?.value || '';
+      const keywords = raw.split('\n').map(k => k.trim()).filter(k => k.length > 0);
+      if (!keywords.length) return alert('Enter keywords');
+      
+      const tbody = document.getElementById('intent-tbody');
+      const status = document.getElementById('intent-status');
+      const count = document.getElementById('intent-count');
+      
+      intentBtn.disabled = true;
+      if (tbody) tbody.innerHTML = '';
+      let parsedCount = 0;
+      if (count) count.textContent = `0 / ${keywords.length}`;
+      
+      try {
+        const response = await fetch('/api/intent/map', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keywords })
+        });
+        await readSSE(response, (type, data) => {
+          if (type === 'progress') {
+            if (status) status.textContent = data;
+          } else if (type === 'result') {
+            parsedCount++;
+            if (count) count.textContent = `${parsedCount} / ${keywords.length}`;
+            
+            const kd = calculateKD(data.keyword);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td style="font-weight: 500">${escapeHtml(data.keyword)}</td>
+              <td>${renderIntentBadge(data.intent)}</td>
+              <td>${renderKDFlameMeter(kd)}</td>
+              <td>
+                <div style="font-size:0.85rem; font-weight:bold">${data.confidence}% Match</div>
+                <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${data.confidence}%"></div></div>
+              </td>
+            `;
+            if (tbody) tbody.appendChild(tr);
+          } else if (type === 'complete') {
+            if (status) status.textContent = 'Mapping Complete';
+            intentBtn.disabled = false;
+          } else if (type === 'error') {
+            if (status) status.textContent = 'Error: ' + data;
+            intentBtn.disabled = false;
+          }
+        });
+      } catch (e) {
+        if (status) status.textContent = 'Connection failed';
+        intentBtn.disabled = false;
+      }
+    });
+  }
 
   // ==========================================
   // Tool 5: Site Crawler
@@ -461,8 +507,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const crawlerBtn = document.getElementById('crawler-btn');
   if (crawlerBtn) {
     crawlerBtn.addEventListener('click', async () => {
-      const url = document.getElementById('crawler-url').value;
-      const maxPages = document.getElementById('crawler-max').value;
+      const url = document.getElementById('crawler-url')?.value;
+      const maxPages = document.getElementById('crawler-max')?.value;
       
       if (!url) return alert('Enter a valid starting URL');
       if (!url.startsWith('http')) return alert('URL must start with http:// or https://');
@@ -472,9 +518,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const countLabel = document.getElementById('crawler-count');
       
       crawlerBtn.disabled = true;
-      tbody.innerHTML = '';
+      if (tbody) tbody.innerHTML = '';
       let pageCount = 0;
-      countLabel.textContent = '0';
+      if (countLabel) countLabel.textContent = '0';
       
       try {
         const response = await fetch('/api/crawler/start', {
@@ -485,10 +531,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            status.textContent = data;
+            if (status) status.textContent = data;
           } else if (type === 'result') {
             pageCount++;
-            countLabel.textContent = pageCount;
+            if (countLabel) countLabel.textContent = pageCount;
             
             const tr = document.createElement('tr');
             
@@ -509,18 +555,20 @@ document.addEventListener('DOMContentLoaded', () => {
               <td style="color:${descColor}">${data.description ? escapeHtml(data.description).substring(0,30)+'...' : 'Missing'} <br/><small>(${data.descriptionLength} chars)</small></td>
               <td style="font-family:monospace; color:var(--text-muted)">${data.internalLinks} / ${data.externalLinks}</td>
             `;
-            tbody.appendChild(tr);
+            if (tbody) tbody.appendChild(tr);
           } else if (type === 'complete') {
-            status.textContent = `Crawl Complete! Found ${data.totalCrawled} pages.`;
+            if (status) status.textContent = `Crawl Complete! Found ${data.totalCrawled} pages.`;
             crawlerBtn.disabled = false;
           } else if (type === 'error') {
-            status.textContent = 'Error: ' + data;
-            status.style.color = 'var(--intent-err)';
+            if (status) {
+              status.textContent = 'Error: ' + data;
+              status.style.color = 'var(--intent-err)';
+            }
             crawlerBtn.disabled = false;
           }
         });
       } catch (e) {
-        status.textContent = 'Connection failed';
+        if (status) status.textContent = 'Connection failed';
         crawlerBtn.disabled = false;
       }
     });
@@ -532,20 +580,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const masterBtn = document.getElementById('master-btn');
   if (masterBtn) {
     masterBtn.addEventListener('click', async () => {
-      const url = document.getElementById('master-url').value;
-      const keyword = document.getElementById('master-keyword').value;
+      const url = document.getElementById('master-url')?.value;
+      const keyword = document.getElementById('master-keyword')?.value;
       const isBatch = document.getElementById('master-batch-toggle')?.checked;
       
       if (!url || !keyword) return alert('Enter a URL and Target Keyword');
       if (!url.startsWith('http')) return alert('URL must start with http:// or https://');
       
       const status = document.getElementById('master-status');
+      const masterResults = document.getElementById('master-results');
       masterBtn.disabled = true;
-      document.getElementById('master-results').style.display = 'none';
+      if (masterResults) masterResults.style.display = 'none';
       
       try {
         if (isBatch) {
-          status.textContent = 'Starting Batch Master Audit...';
+          if (status) status.textContent = 'Starting Batch Master Audit...';
           const response = await fetch('/api/master/batch', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -554,12 +603,12 @@ document.addEventListener('DOMContentLoaded', () => {
           
           await readSSE(response, (type, data) => {
             if (type === 'progress') {
-              status.textContent += `\n${data}`;
+              if (status) status.textContent += `\n${data}`;
             } else if (type === 'complete') {
-              status.textContent += `\n\nBatch Audit Complete! Processed ${data.length} URLs. Check the History tab for detailed trends.`;
+              if (status) status.textContent += `\n\nBatch Audit Complete! Processed ${data.length} URLs. Check the History tab for detailed trends.`;
               masterBtn.disabled = false;
             } else if (type === 'error') {
-              status.textContent += `\nError: ${data}`;
+              if (status) status.textContent += `\nError: ${data}`;
               masterBtn.disabled = false;
             }
           });
@@ -574,75 +623,95 @@ document.addEventListener('DOMContentLoaded', () => {
         
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            status.textContent = data;
+            if (status) status.textContent = data;
           } else if (type === 'complete') {
-            status.textContent = '360° Audit Complete!';
-            document.getElementById('master-results').style.display = 'block';
+            if (status) status.textContent = '360° Audit Complete!';
+            if (masterResults) masterResults.style.display = 'block';
             
             // Populate UI
             const scoreEl = document.getElementById('master-score');
-            scoreEl.textContent = data.overallScore;
-            scoreEl.style.borderColor = data.overallScore > 80 ? 'var(--intent-trans)' : (data.overallScore > 50 ? 'var(--intent-comm)' : 'var(--intent-err)');
-            scoreEl.style.color = scoreEl.style.borderColor;
+            if (scoreEl) {
+              scoreEl.textContent = data.overallScore;
+              scoreEl.style.borderColor = data.overallScore > 80 ? 'var(--intent-trans)' : (data.overallScore > 50 ? 'var(--intent-comm)' : 'var(--intent-err)');
+              scoreEl.style.color = scoreEl.style.borderColor;
+            }
             
             if (data.intent) {
               const b = document.getElementById('master-intent-badge');
-              b.textContent = data.intent.intent;
-              b.className = `badge ${data.intent.intent}`;
-              document.getElementById('master-intent-conf').textContent = `${data.intent.confidence}% Match`;
+              if (b) {
+                b.textContent = data.intent.intent;
+                b.className = `badge ${data.intent.intent}`;
+              }
+              const confEl = document.getElementById('master-intent-conf');
+              if (confEl) confEl.textContent = `${data.intent.confidence}% Match`;
             }
             
             if (data.vitals && !data.vitals.error) {
-              document.getElementById('master-vitals-lcp').textContent = data.vitals.lcp || 'Error';
-              document.getElementById('master-vitals-cls').textContent = data.vitals.cls || 'Error';
-              document.getElementById('master-vitals-tbt').textContent = data.vitals.tbt || 'Error';
+              const lcpEl = document.getElementById('master-vitals-lcp');
+              if (lcpEl) lcpEl.textContent = data.vitals.lcp || 'Error';
+              const clsEl = document.getElementById('master-vitals-cls');
+              if (clsEl) clsEl.textContent = data.vitals.cls || 'Error';
+              const tbtEl = document.getElementById('master-vitals-tbt');
+              if (tbtEl) tbtEl.textContent = data.vitals.tbt || 'Error';
             }
             
             if (data.content) {
-              document.getElementById('master-content-grade').textContent = data.content.grade;
+              const gradeEl = document.getElementById('master-content-grade');
+              if (gradeEl) gradeEl.textContent = data.content.grade;
               const missingDiv = document.getElementById('master-content-missing');
-              missingDiv.innerHTML = '';
-              (data.content.missing || []).slice(0, 10).forEach(term => {
-                const tag = document.createElement('span');
-                tag.style.cssText = 'background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 99px; font-size: 0.8rem;';
-                tag.textContent = term;
-                missingDiv.appendChild(tag);
-              });
+              if (missingDiv) {
+                missingDiv.innerHTML = '';
+                (data.content.missing || []).slice(0, 10).forEach(term => {
+                  const tag = document.createElement('span');
+                  tag.style.cssText = 'background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 99px; font-size: 0.8rem;';
+                  tag.textContent = term;
+                  missingDiv.appendChild(tag);
+                });
+              }
             }
             if (data.technical) {
-              document.getElementById('master-tech-canonical').textContent = data.technical.canonical || 'Missing';
-              document.getElementById('master-tech-schema').textContent = data.technical.jsonLd ? 'Present' : 'Missing';
-              document.getElementById('master-tech-links').textContent = data.technical.totalLinks || '0';
+              const canEl = document.getElementById('master-tech-canonical');
+              if (canEl) canEl.textContent = data.technical.canonical || 'Missing';
+              const schemaEl = document.getElementById('master-tech-schema');
+              if (schemaEl) schemaEl.textContent = data.technical.jsonLd ? 'Present' : 'Missing';
+              const linksEl = document.getElementById('master-tech-links');
+              if (linksEl) linksEl.textContent = data.technical.totalLinks || '0';
               const brokenEl = document.getElementById('master-tech-broken');
-              brokenEl.textContent = data.technical.brokenLinks || '0';
-              if (data.technical.brokenLinks > 0) brokenEl.style.color = 'var(--intent-err)';
-              else brokenEl.style.color = 'var(--intent-info)';
+              if (brokenEl) {
+                brokenEl.textContent = data.technical.brokenLinks || '0';
+                if (data.technical.brokenLinks > 0) brokenEl.style.color = 'var(--intent-err)';
+                else brokenEl.style.color = 'var(--intent-info)';
+              }
             }
             
             if (data.actionPlan) {
               const planList = document.getElementById('master-action-plan');
-              planList.innerHTML = '';
-              data.actionPlan.forEach(item => {
-                const li = document.createElement('li');
-                li.style.cssText = 'padding: 10px; background: var(--bg-hover); margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent);';
-                if (item.priority === 'High') li.style.borderLeftColor = 'var(--intent-err)';
-                if (item.priority === 'Medium') li.style.borderLeftColor = 'var(--intent-nav)';
-                if (item.priority === 'Low') li.style.borderLeftColor = 'var(--intent-info)';
-                
-                li.innerHTML = `<strong>[${item.priority}]</strong> ${escapeHtml(item.task)}`;
-                planList.appendChild(li);
-              });
+              if (planList) {
+                planList.innerHTML = '';
+                data.actionPlan.forEach(item => {
+                  const li = document.createElement('li');
+                  li.style.cssText = 'padding: 10px; background: var(--bg-hover); margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent);';
+                  if (item.priority === 'High') li.style.borderLeftColor = 'var(--intent-err)';
+                  if (item.priority === 'Medium') li.style.borderLeftColor = 'var(--intent-nav)';
+                  if (item.priority === 'Low') li.style.borderLeftColor = 'var(--intent-info)';
+                  
+                  li.innerHTML = `<strong>[${item.priority}]</strong> ${escapeHtml(item.task)}`;
+                  planList.appendChild(li);
+                });
+              }
             }
 
             masterBtn.disabled = false;
           } else if (type === 'error') {
-            status.textContent = 'Error: ' + data;
-            status.style.color = 'var(--intent-err)';
+            if (status) {
+              status.textContent = 'Error: ' + data;
+              status.style.color = 'var(--intent-err)';
+            }
             masterBtn.disabled = false;
           }
         });
       } catch (e) {
-        status.textContent = 'Connection failed';
+        if (status) status.textContent = 'Connection failed';
         masterBtn.disabled = false;
       }
     });
@@ -650,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pdfBtn = document.getElementById('master-pdf-btn');
     if (pdfBtn) {
       pdfBtn.addEventListener('click', async () => {
-        const resultsHtml = document.getElementById('master-results').innerHTML;
+        const resultsHtml = document.getElementById('master-results')?.innerHTML || '';
         pdfBtn.disabled = true;
         pdfBtn.textContent = 'Generating...';
         
@@ -688,9 +757,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const finderBtn = document.getElementById('finder-btn');
   if (finderBtn) {
     finderBtn.addEventListener('click', async () => {
-      const sitemapUrl = document.getElementById('finder-sitemap').value;
-      const targetUrl = document.getElementById('finder-target').value;
-      const keyword = document.getElementById('finder-keyword').value;
+      const sitemapUrl = document.getElementById('finder-sitemap')?.value;
+      const targetUrl = document.getElementById('finder-target')?.value;
+      const keyword = document.getElementById('finder-keyword')?.value;
       
       if (!sitemapUrl || !targetUrl || !keyword) return alert('Enter Sitemap URL, Target URL, and Keyword');
       if (!sitemapUrl.startsWith('http') || !targetUrl.startsWith('http')) return alert('URLs must start with http:// or https://');
@@ -700,9 +769,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const countLabel = document.getElementById('finder-count');
       
       finderBtn.disabled = true;
-      tbody.innerHTML = '';
+      if (tbody) tbody.innerHTML = '';
       let oppCount = 0;
-      countLabel.textContent = '0';
+      if (countLabel) countLabel.textContent = '0';
       
       try {
         const response = await fetch('/api/links/find', {
@@ -713,10 +782,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            status.textContent = data;
+            if (status) status.textContent = data;
           } else if (type === 'result') {
             oppCount++;
-            countLabel.textContent = oppCount;
+            if (countLabel) countLabel.textContent = oppCount;
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -728,18 +797,20 @@ document.addEventListener('DOMContentLoaded', () => {
               </td>
               <td style="font-weight:bold; color:var(--intent-trans)">"${escapeHtml(data.keyword)}"</td>
             `;
-            tbody.appendChild(tr);
+            if (tbody) tbody.appendChild(tr);
           } else if (type === 'complete') {
-            status.textContent = `Scan Complete! Found ${data.opportunities} opportunities across ${data.scanned} pages.`;
+            if (status) status.textContent = `Scan Complete! Found ${data.opportunities} opportunities across ${data.scanned} pages.`;
             finderBtn.disabled = false;
           } else if (type === 'error') {
-            status.textContent = 'Error: ' + data;
-            status.style.color = 'var(--intent-err)';
+            if (status) {
+              status.textContent = 'Error: ' + data;
+              status.style.color = 'var(--intent-err)';
+            }
             finderBtn.disabled = false;
           }
         });
       } catch (e) {
-        status.textContent = 'Connection failed';
+        if (status) status.textContent = 'Connection failed';
         finderBtn.disabled = false;
       }
     });
@@ -751,7 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cannibalBtn = document.getElementById('cannibal-btn');
   if (cannibalBtn) {
     cannibalBtn.addEventListener('click', async () => {
-      const sitemapUrl = document.getElementById('cannibal-sitemap').value;
+      const sitemapUrl = document.getElementById('cannibal-sitemap')?.value;
       if (!sitemapUrl) return alert('Enter Sitemap URL');
       if (!sitemapUrl.startsWith('http')) return alert('URL must start with http:// or https://');
       
@@ -760,9 +831,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const countLabel = document.getElementById('cannibal-count');
       
       cannibalBtn.disabled = true;
-      resultsContainer.innerHTML = '';
+      if (resultsContainer) resultsContainer.innerHTML = '';
       let conflictCount = 0;
-      countLabel.textContent = '0';
+      if (countLabel) countLabel.textContent = '0';
       
       try {
         const response = await fetch('/api/cannibalization/check', {
@@ -773,10 +844,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            status.textContent = data;
+            if (status) status.textContent = data;
           } else if (type === 'conflict') {
             conflictCount++;
-            countLabel.textContent = conflictCount;
+            if (countLabel) countLabel.textContent = conflictCount;
             
             const card = document.createElement('div');
             card.style.cssText = 'background: var(--bg-hover); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--intent-err); border-left: 4px solid var(--intent-err);';
@@ -794,18 +865,20 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `</ul>`;
             
             card.innerHTML = html;
-            resultsContainer.appendChild(card);
+            if (resultsContainer) resultsContainer.appendChild(card);
           } else if (type === 'complete') {
-            status.textContent = `Scan Complete! Found ${data.conflictsFound} conflicts across ${data.scanned} pages.`;
+            if (status) status.textContent = `Scan Complete! Found ${data.conflictsFound} conflicts across ${data.scanned} pages.`;
             cannibalBtn.disabled = false;
           } else if (type === 'error') {
-            status.textContent = 'Error: ' + data;
-            status.style.color = 'var(--intent-err)';
+            if (status) {
+              status.textContent = 'Error: ' + data;
+              status.style.color = 'var(--intent-err)';
+            }
             cannibalBtn.disabled = false;
           }
         });
       } catch (e) {
-        status.textContent = 'Connection failed';
+        if (status) status.textContent = 'Connection failed';
         cannibalBtn.disabled = false;
       }
     });
@@ -843,18 +916,22 @@ document.addEventListener('DOMContentLoaded', () => {
   if (schemaTypeSelect && schemaFieldsContainer) {
     const renderSchemaFields = () => {
       const type = schemaTypeSelect.value;
-      schemaFieldsContainer.innerHTML = schemaTemplates[type].map(f => `
-        <div style="display:flex; flex-direction:column; gap:0.3rem;">
-          <label style="font-size:0.85rem; color:var(--text-muted);">${f.label}</label>
-          <input type="text" id="${f.id}" placeholder="${f.placeholder}" style="padding:0.6rem; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);" />
-        </div>
-      `).join('');
+      if (schemaTemplates[type]) {
+        schemaFieldsContainer.innerHTML = schemaTemplates[type].map(f => `
+          <div style="display:flex; flex-direction:column; gap:0.3rem;">
+            <label style="font-size:0.85rem; color:var(--text-muted);">${f.label}</label>
+            <input type="text" id="${f.id}" placeholder="${f.placeholder}" style="padding:0.6rem; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);" />
+          </div>
+        `).join('');
+      }
     };
     schemaTypeSelect.addEventListener('change', renderSchemaFields);
     renderSchemaFields(); // Initialize on load
+  }
 
+  if (schemaBtn) {
     schemaBtn.addEventListener('click', () => {
-      const type = schemaTypeSelect.value;
+      const type = schemaTypeSelect?.value;
       let jsonld = {};
       
       if (type === 'Product') {
@@ -902,7 +979,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
       }
       
-      schemaOutput.textContent = `<script type="application/ld+json">\n${JSON.stringify(jsonld, null, 2)}\n</script>`;
+      if (schemaOutput) schemaOutput.textContent = `<script type="application/ld+json">\n${JSON.stringify(jsonld, null, 2)}\n</script>`;
     });
   }
 
@@ -912,10 +989,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const metaBtn = document.getElementById('meta-btn');
   if (metaBtn) {
     metaBtn.addEventListener('click', () => {
-      const keyword = document.getElementById('meta-keyword').value || 'Target Keyword';
-      const brand = document.getElementById('meta-brand').value || 'Brand';
-      const angle = document.getElementById('meta-angle').value;
+      const keyword = document.getElementById('meta-keyword')?.value || 'Target Keyword';
+      const brand = document.getElementById('meta-brand')?.value || 'Brand';
+      const angle = document.getElementById('meta-angle')?.value || 'ecommerce';
       const results = document.getElementById('meta-results');
+      if (!results) return;
       
       const templates = {
         ecommerce: [
@@ -935,7 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
       };
       
-      const vars = templates[angle];
+      const vars = templates[angle] || templates.ecommerce;
       results.innerHTML = '';
       
       vars.forEach((v, i) => {
@@ -975,16 +1053,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const dPxSpan = card.querySelector('.meta-d-px');
         
         const updateVariationPx = () => {
-          const curTPx = calculatePixelWidth(editT.value, '20px', 'Arial, sans-serif');
-          const curDPx = calculatePixelWidth(editD.value, '14px', 'Arial, sans-serif');
-          tPxSpan.textContent = `${curTPx}px / 580px`;
-          tPxSpan.style.color = curTPx > 580 ? 'var(--intent-err)' : 'var(--intent-trans)';
-          dPxSpan.textContent = `${curDPx}px / 960px`;
-          dPxSpan.style.color = curDPx > 960 ? 'var(--intent-err)' : 'var(--intent-trans)';
+          const curTPx = calculatePixelWidth(editT?.value || '', '20px', 'Arial, sans-serif');
+          const curDPx = calculatePixelWidth(editD?.value || '', '14px', 'Arial, sans-serif');
+          if (tPxSpan) {
+            tPxSpan.textContent = `${curTPx}px / 580px`;
+            tPxSpan.style.color = curTPx > 580 ? 'var(--intent-err)' : 'var(--intent-trans)';
+          }
+          if (dPxSpan) {
+            dPxSpan.textContent = `${curDPx}px / 960px`;
+            dPxSpan.style.color = curDPx > 960 ? 'var(--intent-err)' : 'var(--intent-trans)';
+          }
         };
         
-        editT.addEventListener('input', updateVariationPx);
-        editD.addEventListener('input', updateVariationPx);
+        const debouncedUpdateVarPx = debounce(updateVariationPx, 150);
+        if (editT) editT.addEventListener('input', debouncedUpdateVarPx);
+        if (editD) editD.addEventListener('input', debouncedUpdateVarPx);
         
         results.appendChild(card);
       });
@@ -997,7 +1080,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const brokenBtn = document.getElementById('broken-btn');
   if (brokenBtn) {
     brokenBtn.addEventListener('click', async () => {
-      const url = document.getElementById('broken-url').value;
+      const url = document.getElementById('broken-url')?.value;
       if (!url) return alert('Enter Page URL');
       if (!url.startsWith('http')) return alert('URL must start with http:// or https://');
       
@@ -1006,9 +1089,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const countLabel = document.getElementById('broken-count');
       
       brokenBtn.disabled = true;
-      tbody.innerHTML = '';
+      if (tbody) tbody.innerHTML = '';
       let linkCount = 0;
-      countLabel.textContent = '0';
+      if (countLabel) countLabel.textContent = '0';
       
       try {
         const response = await fetch('/api/links/broken', {
@@ -1019,10 +1102,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            status.textContent = data;
+            if (status) status.textContent = data;
           } else if (type === 'link') {
             linkCount++;
-            countLabel.textContent = linkCount;
+            if (countLabel) countLabel.textContent = linkCount;
             
             const tr = document.createElement('tr');
             
@@ -1035,23 +1118,24 @@ document.addEventListener('DOMContentLoaded', () => {
               <td style="color:${color}; font-weight:bold;">${data.health}</td>
             `;
             
-            // Highlight row if broken
             if (data.health === 'Broken') {
               tr.style.background = 'rgba(255, 107, 107, 0.1)';
             }
             
-            tbody.appendChild(tr);
+            if (tbody) tbody.appendChild(tr);
           } else if (type === 'complete') {
-            status.textContent = `Scan Complete! Audited ${data.audited} external links.`;
+            if (status) status.textContent = `Scan Complete! Audited ${data.audited} external links.`;
             brokenBtn.disabled = false;
           } else if (type === 'error') {
-            status.textContent = 'Error: ' + data;
-            status.style.color = 'var(--intent-err)';
+            if (status) {
+              status.textContent = 'Error: ' + data;
+              status.style.color = 'var(--intent-err)';
+            }
             brokenBtn.disabled = false;
           }
         });
       } catch (e) {
-        status.textContent = 'Connection failed';
+        if (status) status.textContent = 'Connection failed';
         brokenBtn.disabled = false;
       }
     });
@@ -1067,7 +1151,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/history');
       const data = await res.json();
       
-      // Sort ascending for chart (it comes back DESC if no URL provided)
       data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
       const labels = data.map(d => new Date(d.timestamp).toLocaleString());
@@ -1075,62 +1158,66 @@ document.addEventListener('DOMContentLoaded', () => {
       const vitalsData = data.map(d => d.vitals_score);
       const contentData = data.map(d => d.content_score);
 
-      const ctx = document.getElementById('history-chart').getContext('2d');
+      const historyChartEl = document.getElementById('history-chart');
+      if (!historyChartEl) return;
+      const ctx = historyChartEl.getContext('2d');
       if (historyChart) {
         historyChart.destroy();
       }
 
-      historyChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Overall Score',
-              data: overallData,
-              borderColor: '#6366f1',
-              backgroundColor: 'rgba(99, 102, 241, 0.2)',
-              borderWidth: 2,
-              fill: true,
-              tension: 0.3
-            },
-            {
-              label: 'Web Vitals',
-              data: vitalsData,
-              borderColor: '#10b981',
-              borderWidth: 2,
-              borderDash: [5, 5],
-              tension: 0.3
-            },
-            {
-              label: 'Content NLP',
-              data: contentData,
-              borderColor: '#f59e0b',
-              borderWidth: 2,
-              borderDash: [5, 5],
-              tension: 0.3
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              labels: { color: '#e2e8f0' }
-            }
+      if (typeof Chart !== 'undefined') {
+        historyChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Overall Score',
+                data: overallData,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+              },
+              {
+                label: 'Web Vitals',
+                data: vitalsData,
+                borderColor: '#10b981',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.3
+              },
+              {
+                label: 'Content NLP',
+                data: contentData,
+                borderColor: '#f59e0b',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.3
+              }
+            ]
           },
-          scales: {
-            x: {
-              ticks: { color: '#94a3b8' }
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                labels: { color: '#e2e8f0' }
+              }
             },
-            y: {
-              min: 0,
-              max: 100,
-              ticks: { color: '#94a3b8' }
+            scales: {
+              x: {
+                ticks: { color: '#94a3b8' }
+              },
+              y: {
+                min: 0,
+                max: 100,
+                ticks: { color: '#94a3b8' }
+              }
             }
           }
-        }
-      });
+        });
+      }
     } catch (e) {
       console.error('Failed to load history', e);
     }
@@ -1170,7 +1257,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const serpDesc = document.getElementById('serp-desc');
   
   if (serpTitle && serpDesc) {
-    // Pixel width measurement using a hidden canvas
     const measureCanvas = document.createElement('canvas');
     const measureCtx = measureCanvas.getContext('2d');
     
@@ -1186,23 +1272,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_DESC_MOBILE = 120;
     
     function updateSerpPreview() {
-      const title = serpTitle.value || 'Your Page Title Here';
-      const url = serpUrl.value || 'https://example.com';
-      const desc = serpDesc.value || 'Your meta description will appear here. Write a compelling description to improve your click-through rate.';
+      const title = serpTitle?.value || 'Your Page Title Here';
+      const url = serpUrl?.value || 'https://example.com';
+      const desc = serpDesc?.value || 'Your meta description will appear here. Write a compelling description to improve your click-through rate.';
       
       const maxTitlePx = isMobilePreview ? MAX_TITLE_PX_MOBILE : MAX_TITLE_PX_DESKTOP;
       const maxDescChars = isMobilePreview ? MAX_DESC_MOBILE : MAX_DESC_DESKTOP;
       const titleFontSize = isMobilePreview ? '18px' : '20px';
       
-      // Measure title pixel width
       const titlePx = calculatePixelWidth(title, titleFontSize, 'Arial, sans-serif');
       const isTruncated = titlePx > maxTitlePx;
 
-      // Measure description pixel width (max 960px desktop)
       const descPx = calculatePixelWidth(desc, '14px', 'Arial, sans-serif');
       const maxDescPx = isMobilePreview ? 1000 : 960;
       
-      // Find truncation point
       let displayTitle = title;
       if (isTruncated) {
         for (let i = title.length; i > 0; i--) {
@@ -1214,13 +1297,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       
-      // Display description with truncation
       let displayDesc = desc;
       if (desc.length > maxDescChars) {
         displayDesc = desc.substring(0, maxDescChars - 3) + '...';
       }
       
-      // Parse URL for breadcrumb
       let domain = 'example.com';
       let breadcrumb = url;
       try {
@@ -1229,21 +1310,32 @@ document.addEventListener('DOMContentLoaded', () => {
         breadcrumb = url.replace(/\/$/, '').replace(/^https?:\/\//, '').replace(/\//g, ' › ');
       } catch(e) {}
       
-      // Update preview
-      document.getElementById('serp-render-title').textContent = displayTitle;
-      document.getElementById('serp-render-title').style.fontSize = titleFontSize;
-      document.getElementById('serp-render-desc').textContent = displayDesc;
-      document.getElementById('serp-render-breadcrumb').textContent = breadcrumb;
-      document.querySelector('#serp-render-url > span').textContent = domain.charAt(0).toUpperCase();
-      document.querySelector('#serp-render-url > div > div:first-child').textContent = domain;
+      const rTitle = document.getElementById('serp-render-title');
+      if (rTitle) {
+        rTitle.textContent = displayTitle;
+        rTitle.style.fontSize = titleFontSize;
+      }
+      const rDesc = document.getElementById('serp-render-desc');
+      if (rDesc) rDesc.textContent = displayDesc;
+      const rBreadcrumb = document.getElementById('serp-render-breadcrumb');
+      if (rBreadcrumb) rBreadcrumb.textContent = breadcrumb;
       
-      // Update metrics
-      const titleChars = serpTitle.value.length;
-      const descChars = serpDesc.value.length;
+      const rUrlFav = document.querySelector('#serp-render-url > span');
+      if (rUrlFav) rUrlFav.textContent = domain.charAt(0).toUpperCase();
+      const rUrlDom = document.querySelector('#serp-render-url > div > div:first-child');
+      if (rUrlDom) rUrlDom.textContent = domain;
       
-      document.getElementById('serp-title-chars').textContent = `${titleChars} characters`;
-      document.getElementById('serp-title-px').textContent = `${titlePx}px / ${maxTitlePx}px`;
-      document.getElementById('serp-title-px').style.color = isTruncated ? 'var(--intent-err)' : 'var(--intent-trans)';
+      const titleChars = serpTitle?.value?.length || 0;
+      const descChars = serpDesc?.value?.length || 0;
+      
+      const titleCharsEl = document.getElementById('serp-title-chars');
+      if (titleCharsEl) titleCharsEl.textContent = `${titleChars} characters`;
+
+      const titlePxEl = document.getElementById('serp-title-px');
+      if (titlePxEl) {
+        titlePxEl.textContent = `${titlePx}px / ${maxTitlePx}px`;
+        titlePxEl.style.color = isTruncated ? 'var(--intent-err)' : 'var(--intent-trans)';
+      }
       
       const descPxEl = document.getElementById('serp-desc-px');
       if (descPxEl) {
@@ -1251,42 +1343,67 @@ document.addEventListener('DOMContentLoaded', () => {
         descPxEl.style.color = descPx > maxDescPx ? 'var(--intent-err)' : 'var(--intent-trans)';
       }
 
-      document.getElementById('serp-desc-chars').textContent = `${descChars} characters`;
-      document.getElementById('serp-desc-chars').style.color = descChars > maxDescChars ? 'var(--intent-err)' : 'var(--text-muted)';
+      const descCharsEl = document.getElementById('serp-desc-chars');
+      if (descCharsEl) {
+        descCharsEl.textContent = `${descChars} characters`;
+        descCharsEl.style.color = descChars > maxDescChars ? 'var(--intent-err)' : 'var(--text-muted)';
+      }
       
-      document.getElementById('serp-metric-width').textContent = `${titlePx}px`;
-      document.getElementById('serp-metric-width').style.color = isTruncated ? 'var(--intent-err)' : 'var(--intent-trans)';
-      document.getElementById('serp-metric-len').textContent = titleChars;
-      document.getElementById('serp-metric-len').style.color = titleChars > 60 ? 'var(--intent-err)' : (titleChars >= 50 ? 'var(--intent-trans)' : 'var(--intent-comm)');
-      document.getElementById('serp-metric-desc').textContent = descChars;
-      document.getElementById('serp-metric-desc').style.color = descChars > maxDescChars ? 'var(--intent-err)' : (descChars >= 140 ? 'var(--intent-trans)' : 'var(--intent-comm)');
+      const metricWidthEl = document.getElementById('serp-metric-width');
+      if (metricWidthEl) {
+        metricWidthEl.textContent = `${titlePx}px`;
+        metricWidthEl.style.color = isTruncated ? 'var(--intent-err)' : 'var(--intent-trans)';
+      }
+
+      const metricLenEl = document.getElementById('serp-metric-len');
+      if (metricLenEl) {
+        metricLenEl.textContent = titleChars;
+        metricLenEl.style.color = titleChars > 60 ? 'var(--intent-err)' : (titleChars >= 50 ? 'var(--intent-trans)' : 'var(--intent-comm)');
+      }
+
+      const metricDescEl = document.getElementById('serp-metric-desc');
+      if (metricDescEl) {
+        metricDescEl.textContent = descChars;
+        metricDescEl.style.color = descChars > maxDescChars ? 'var(--intent-err)' : (descChars >= 140 ? 'var(--intent-trans)' : 'var(--intent-comm)');
+      }
     }
     
-    serpTitle.addEventListener('input', updateSerpPreview);
-    serpUrl.addEventListener('input', updateSerpPreview);
-    serpDesc.addEventListener('input', updateSerpPreview);
+    const debouncedUpdateSerpPreview = debounce(updateSerpPreview, 150);
+
+    serpTitle.addEventListener('input', debouncedUpdateSerpPreview);
+    if (serpUrl) serpUrl.addEventListener('input', debouncedUpdateSerpPreview);
+    serpDesc.addEventListener('input', debouncedUpdateSerpPreview);
     
-    // Desktop/Mobile toggle
     const desktopBtn = document.getElementById('serp-desktop-btn');
     const mobileBtn2 = document.getElementById('serp-mobile-btn');
-    desktopBtn.addEventListener('click', () => {
-      isMobilePreview = false;
-      desktopBtn.style.background = '';
-      desktopBtn.style.border = '';
-      mobileBtn2.style.background = 'var(--bg-input)';
-      mobileBtn2.style.border = '1px solid var(--border)';
-      document.getElementById('serp-desc-limit').textContent = 'Desktop: 160 chars';
-      updateSerpPreview();
-    });
-    mobileBtn2.addEventListener('click', () => {
-      isMobilePreview = true;
-      mobileBtn2.style.background = '';
-      mobileBtn2.style.border = '';
-      desktopBtn.style.background = 'var(--bg-input)';
-      desktopBtn.style.border = '1px solid var(--border)';
-      document.getElementById('serp-desc-limit').textContent = 'Mobile: 120 chars';
-      updateSerpPreview();
-    });
+    if (desktopBtn) {
+      desktopBtn.addEventListener('click', () => {
+        isMobilePreview = false;
+        desktopBtn.style.background = '';
+        desktopBtn.style.border = '';
+        if (mobileBtn2) {
+          mobileBtn2.style.background = 'var(--bg-input)';
+          mobileBtn2.style.border = '1px solid var(--border)';
+        }
+        const descLimitEl = document.getElementById('serp-desc-limit');
+        if (descLimitEl) descLimitEl.textContent = 'Desktop: 160 chars';
+        updateSerpPreview();
+      });
+    }
+    if (mobileBtn2) {
+      mobileBtn2.addEventListener('click', () => {
+        isMobilePreview = true;
+        mobileBtn2.style.background = '';
+        mobileBtn2.style.border = '';
+        if (desktopBtn) {
+          desktopBtn.style.background = 'var(--bg-input)';
+          desktopBtn.style.border = '1px solid var(--border)';
+        }
+        const descLimitEl = document.getElementById('serp-desc-limit');
+        if (descLimitEl) descLimitEl.textContent = 'Mobile: 120 chars';
+        updateSerpPreview();
+      });
+    }
   }
 
   // ==========================================
@@ -1297,7 +1414,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let bulkResults = [];
     
     bulkBtn.addEventListener('click', async () => {
-      const raw = document.getElementById('bulk-urls').value;
+      const raw = document.getElementById('bulk-urls')?.value || '';
       const urls = raw.split('\n').map(u => u.trim()).filter(u => u.length > 0 && u.startsWith('http'));
       if (!urls.length) return alert('Enter at least one URL starting with http:// or https://');
       
@@ -1307,11 +1424,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const summary = document.getElementById('bulk-summary');
       
       bulkBtn.disabled = true;
-      tbody.innerHTML = '';
+      if (tbody) tbody.innerHTML = '';
       bulkResults = [];
       let count = 0;
-      countLabel.textContent = '0';
-      summary.style.display = 'none';
+      if (countLabel) countLabel.textContent = '0';
+      if (summary) summary.style.display = 'none';
       
       try {
         const response = await fetch('/api/bulk/check', {
@@ -1322,10 +1439,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            statusText.textContent = data;
+            if (statusText) statusText.textContent = data;
           } else if (type === 'result') {
             count++;
-            countLabel.textContent = count;
+            if (countLabel) countLabel.textContent = count;
             bulkResults.push(data);
             
             const tr = document.createElement('tr');
@@ -1351,29 +1468,33 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.status >= 400 || data.error) tr.style.background = 'rgba(248, 113, 113, 0.08)';
             else if (data.status >= 300) tr.style.background = 'rgba(251, 191, 36, 0.08)';
             
-            tbody.appendChild(tr);
+            if (tbody) tbody.appendChild(tr);
           } else if (type === 'complete') {
-            statusText.textContent = `Complete! Checked ${data.total} URLs.`;
-            summary.style.display = 'grid';
-            document.getElementById('bulk-ok').textContent = data.healthy || 0;
-            document.getElementById('bulk-redir').textContent = data.redirects || 0;
-            document.getElementById('bulk-client').textContent = data.clientErrors || 0;
-            document.getElementById('bulk-server').textContent = data.serverErrors || 0;
-            document.getElementById('bulk-timeout').textContent = data.timeouts || 0;
+            if (statusText) statusText.textContent = `Complete! Checked ${data.total} URLs.`;
+            if (summary) summary.style.display = 'grid';
+            const okEl = document.getElementById('bulk-ok');
+            if (okEl) okEl.textContent = data.healthy || 0;
+            const redirEl = document.getElementById('bulk-redir');
+            if (redirEl) redirEl.textContent = data.redirects || 0;
+            const clientEl = document.getElementById('bulk-client');
+            if (clientEl) clientEl.textContent = data.clientErrors || 0;
+            const serverEl = document.getElementById('bulk-server');
+            if (serverEl) serverEl.textContent = data.serverErrors || 0;
+            const timeoutEl = document.getElementById('bulk-timeout');
+            if (timeoutEl) timeoutEl.textContent = data.timeouts || 0;
             bulkBtn.disabled = false;
           } else if (type === 'error') {
-            statusText.textContent = 'Error: ' + data;
+            if (statusText) statusText.textContent = 'Error: ' + data;
             bulkBtn.disabled = false;
           }
         });
       } catch (e) {
-        statusText.textContent = 'Connection failed';
+        if (statusText) statusText.textContent = 'Connection failed';
         bulkBtn.disabled = false;
       }
     });
     
-    // Export CSV
-    document.getElementById('bulk-export-btn').addEventListener('click', () => {
+    document.getElementById('bulk-export-btn')?.addEventListener('click', () => {
       if (!bulkResults.length) return alert('No results to export');
       let csv = 'URL,Status,Final URL,Redirect Hops,Response Time (ms),Error\n';
       bulkResults.forEach(r => {
@@ -1394,7 +1515,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const headingBtn = document.getElementById('heading-btn');
   if (headingBtn) {
     headingBtn.addEventListener('click', async () => {
-      const url = document.getElementById('heading-url').value;
+      const url = document.getElementById('heading-url')?.value;
       if (!url) return alert('Enter a URL');
       if (!url.startsWith('http')) return alert('URL must start with http:// or https://');
       
@@ -1403,9 +1524,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const issuesEl = document.getElementById('heading-issues');
       
       headingBtn.disabled = true;
-      statusEl.textContent = 'Analyzing...';
-      treeEl.innerHTML = '';
-      issuesEl.innerHTML = '';
+      if (statusEl) statusEl.textContent = 'Analyzing...';
+      if (treeEl) treeEl.innerHTML = '';
+      if (issuesEl) issuesEl.innerHTML = '';
       
       try {
         const response = await fetch('/api/headings/analyze', {
@@ -1420,16 +1541,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const data = await response.json();
-        statusEl.textContent = `Found ${data.total} headings`;
+        if (statusEl) statusEl.textContent = `Found ${data.total} headings`;
         
-        // Render heading tree
         const colors = {
-          1: '#8ab4f8', // H1 - blue
-          2: '#81c995', // H2 - green
-          3: '#fdd663', // H3 - yellow
-          4: '#f28b82', // H4 - red
-          5: '#c58af9', // H5 - purple
-          6: '#78d9ec'  // H6 - cyan
+          1: '#8ab4f8',
+          2: '#81c995',
+          3: '#fdd663',
+          4: '#f28b82',
+          5: '#c58af9',
+          6: '#78d9ec'
         };
         
         let treeHtml = '';
@@ -1442,23 +1562,26 @@ document.addEventListener('DOMContentLoaded', () => {
           treeHtml += `</div>`;
         });
         
-        treeEl.innerHTML = treeHtml || '<div style="color:var(--text-muted); text-align:center; padding:2rem">No headings found on this page</div>';
+        if (treeEl) treeEl.innerHTML = treeHtml || '<div style="color:var(--text-muted); text-align:center; padding:2rem">No headings found on this page</div>';
         
-        // Render issues
-        data.issues.forEach(issue => {
-          const colors = { error: 'var(--intent-err)', warning: 'var(--intent-comm)', success: 'var(--intent-trans)' };
-          const icons = { error: '✕', warning: '⚠', success: '✓' };
-          issuesEl.innerHTML += `
-            <div style="padding:0.6rem 1rem; border-radius:8px; border:1px solid ${colors[issue.type]}30; background:${colors[issue.type]}10; display:flex; align-items:center; gap:8px;">
-              <span style="color:${colors[issue.type]}; font-weight:bold;">${icons[issue.type]}</span>
-              <span style="font-size:0.85rem;">${escapeHtml(issue.message)}</span>
-            </div>
-          `;
-        });
+        if (issuesEl) {
+          data.issues.forEach(issue => {
+            const colorsMap = { error: 'var(--intent-err)', warning: 'var(--intent-comm)', success: 'var(--intent-trans)' };
+            const icons = { error: '✕', warning: '⚠', success: '✓' };
+            issuesEl.innerHTML += `
+              <div style="padding:0.6rem 1rem; border-radius:8px; border:1px solid ${colorsMap[issue.type]}30; background:${colorsMap[issue.type]}10; display:flex; align-items:center; gap:8px;">
+                <span style="color:${colorsMap[issue.type]}; font-weight:bold;">${icons[issue.type]}</span>
+                <span style="font-size:0.85rem;">${escapeHtml(issue.message)}</span>
+              </div>
+            `;
+          });
+        }
         
       } catch (e) {
-        statusEl.textContent = 'Error: ' + e.message;
-        statusEl.style.color = 'var(--intent-err)';
+        if (statusEl) {
+          statusEl.textContent = 'Error: ' + e.message;
+          statusEl.style.color = 'var(--intent-err)';
+        }
       } finally {
         headingBtn.disabled = false;
       }
@@ -1472,7 +1595,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (kwDiscoveryBtn) {
     let discoveryResults = [];
     kwDiscoveryBtn.addEventListener('click', async () => {
-      const seed = document.getElementById('kw-discovery-seed').value.trim();
+      const seed = document.getElementById('kw-discovery-seed')?.value?.trim() || '';
       if (!seed) return alert('Enter a seed keyword');
 
       const tbody = document.getElementById('kw-discovery-tbody');
@@ -1480,10 +1603,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const countEl = document.getElementById('kw-discovery-count');
 
       kwDiscoveryBtn.disabled = true;
-      tbody.innerHTML = '';
+      if (tbody) tbody.innerHTML = '';
       discoveryResults = [];
-      countEl.textContent = '0';
-      statusEl.textContent = 'Scanning Google Autocomplete...';
+      if (countEl) countEl.textContent = '0';
+      if (statusEl) statusEl.textContent = 'Scanning Google Autocomplete...';
 
       try {
         const response = await fetch('/api/keywords/discover', {
@@ -1494,44 +1617,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            statusEl.textContent = data;
+            if (statusEl) statusEl.textContent = data;
           } else if (type === 'complete') {
             discoveryResults = data || [];
-            countEl.textContent = discoveryResults.length;
-            statusEl.textContent = `Done! Found ${discoveryResults.length} keyword suggestions.`;
+            if (countEl) countEl.textContent = discoveryResults.length;
+            if (statusEl) statusEl.textContent = `Done! Found ${discoveryResults.length} keyword suggestions.`;
 
-            if (discoveryResults.length === 0) {
-              tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:2rem">No keywords found</td></tr>';
-            } else {
-              let html = '';
-              discoveryResults.forEach(item => {
-                const intent = getKeywordIntent(item.keyword);
-                const kd = calculateKD(item.keyword);
-                html += `
-                  <tr>
-                    <td style="font-weight:bold; color:var(--text)">${escapeHtml(item.keyword)}</td>
-                    <td>${renderIntentBadge(intent)}</td>
-                    <td>${renderKDFlameMeter(kd)}</td>
-                    <td><span class="badge warning">${escapeHtml(item.source)}</span></td>
-                    <td style="color:var(--text-muted); font-family:monospace">${escapeHtml(item.modifier)}</td>
-                  </tr>
-                `;
-              });
-              tbody.innerHTML = html;
+            if (tbody) {
+              if (discoveryResults.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:2rem">No keywords found</td></tr>';
+              } else {
+                let html = '';
+                discoveryResults.forEach(item => {
+                  const intent = getKeywordIntent(item.keyword);
+                  const kd = calculateKD(item.keyword);
+                  html += `
+                    <tr>
+                      <td style="font-weight:bold; color:var(--text)">${escapeHtml(item.keyword)}</td>
+                      <td>${renderIntentBadge(intent)}</td>
+                      <td>${renderKDFlameMeter(kd)}</td>
+                      <td><span class="badge warning">${escapeHtml(item.source)}</span></td>
+                      <td style="color:var(--text-muted); font-family:monospace">${escapeHtml(item.modifier)}</td>
+                    </tr>
+                  `;
+                });
+                tbody.innerHTML = html;
+              }
             }
           } else if (type === 'error') {
-            statusEl.textContent = 'Error: ' + data;
+            if (statusEl) statusEl.textContent = 'Error: ' + data;
           }
         });
       } catch (e) {
-        statusEl.textContent = 'Connection failed: ' + e.message;
+        if (statusEl) statusEl.textContent = 'Connection failed: ' + e.message;
       } finally {
         kwDiscoveryBtn.disabled = false;
       }
     });
 
-    // CSV Export
-    document.getElementById('kw-discovery-export').addEventListener('click', () => {
+    document.getElementById('kw-discovery-export')?.addEventListener('click', () => {
       if (!discoveryResults.length) return alert('No keywords to export');
       let csv = 'Keyword,Source,Modifier\n';
       discoveryResults.forEach(r => {
@@ -1551,7 +1675,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const kwClusterBtn = document.getElementById('kw-cluster-btn');
   if (kwClusterBtn) {
     kwClusterBtn.addEventListener('click', async () => {
-      const rawText = document.getElementById('kw-cluster-text').value;
+      const rawText = document.getElementById('kw-cluster-text')?.value || '';
       const keywords = rawText.split('\n').map(k => k.trim()).filter(Boolean);
       if (keywords.length < 2) return alert('Enter at least 2 keywords to cluster');
 
@@ -1560,8 +1684,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const countEl = document.getElementById('kw-cluster-count');
 
       kwClusterBtn.disabled = true;
-      statusEl.textContent = 'Clustering...';
-      container.innerHTML = '';
+      if (statusEl) statusEl.textContent = 'Clustering...';
+      if (container) container.innerHTML = '';
 
       try {
         const response = await fetch('/api/keywords/cluster', {
@@ -1573,8 +1697,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) throw new Error('Clustering failed');
         const data = await response.json();
 
-        countEl.textContent = data.clusters.length;
-        statusEl.textContent = `Found ${data.clusters.length} clusters & ${data.unclustered.length} unclustered keywords.`;
+        if (countEl) countEl.textContent = data.clusters.length;
+        if (statusEl) statusEl.textContent = `Found ${data.clusters.length} clusters & ${data.unclustered.length} unclustered keywords.`;
 
         let html = '';
         data.clusters.forEach((c) => {
@@ -1616,9 +1740,9 @@ document.addEventListener('DOMContentLoaded', () => {
           `;
         }
 
-        container.innerHTML = html;
+        if (container) container.innerHTML = html;
       } catch (e) {
-        statusEl.textContent = 'Error: ' + e.message;
+        if (statusEl) statusEl.textContent = 'Error: ' + e.message;
       } finally {
         kwClusterBtn.disabled = false;
       }
@@ -1631,7 +1755,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const rankCheckBtn = document.getElementById('rank-check-btn');
   if (rankCheckBtn) {
     rankCheckBtn.addEventListener('click', async () => {
-      const rawText = document.getElementById('rank-pairs-input').value;
+      const rawText = document.getElementById('rank-pairs-input')?.value || '';
       const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
       const pairs = lines.map(line => {
         const parts = line.split('|');
@@ -1645,8 +1769,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const countEl = document.getElementById('rank-count');
 
       rankCheckBtn.disabled = true;
-      tbody.innerHTML = '';
-      statusEl.textContent = 'Checking rankings...';
+      if (tbody) tbody.innerHTML = '';
+      if (statusEl) statusEl.textContent = 'Checking rankings...';
       let count = 0;
 
       try {
@@ -1658,10 +1782,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            statusEl.textContent = data;
+            if (statusEl) statusEl.textContent = data;
           } else if (type === 'result') {
             count++;
-            countEl.textContent = count;
+            if (countEl) countEl.textContent = count;
             const tr = document.createElement('tr');
             const intent = getKeywordIntent(data.keyword);
             const kd = calculateKD(data.keyword);
@@ -1677,13 +1801,13 @@ document.addEventListener('DOMContentLoaded', () => {
               <td><span class="badge ${posBadgeClass}">#${data.position}</span></td>
               <td>${data.serpFeatures.map(f => `<span class="badge info">${escapeHtml(f)}</span>`).join(' ') || '—'}</td>
             `;
-            tbody.appendChild(tr);
+            if (tbody) tbody.appendChild(tr);
           } else if (type === 'complete') {
-            statusEl.textContent = `Completed ${count} rank checks. Saved to history.`;
+            if (statusEl) statusEl.textContent = `Completed ${count} rank checks. Saved to history.`;
           }
         });
       } catch (e) {
-        statusEl.textContent = 'Connection failed: ' + e.message;
+        if (statusEl) statusEl.textContent = 'Connection failed: ' + e.message;
       } finally {
         rankCheckBtn.disabled = false;
       }
@@ -1700,21 +1824,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (sitemapTabGen && sitemapTabVal) {
     sitemapTabGen.addEventListener('click', () => {
-      sitemapPanelGen.style.display = 'block';
-      sitemapPanelVal.style.display = 'none';
+      if (sitemapPanelGen) sitemapPanelGen.style.display = 'block';
+      if (sitemapPanelVal) sitemapPanelVal.style.display = 'none';
       sitemapTabGen.style.background = 'var(--accent)';
       sitemapTabVal.style.background = 'var(--bg-input)';
     });
     sitemapTabVal.addEventListener('click', () => {
-      sitemapPanelGen.style.display = 'none';
-      sitemapPanelVal.style.display = 'block';
+      if (sitemapPanelGen) sitemapPanelGen.style.display = 'none';
+      if (sitemapPanelVal) sitemapPanelVal.style.display = 'block';
       sitemapTabVal.style.background = 'var(--accent)';
       sitemapTabGen.style.background = 'var(--bg-input)';
     });
 
     // Generate XML
-    document.getElementById('sitemap-gen-btn').addEventListener('click', async () => {
-      const rawText = document.getElementById('sitemap-gen-urls').value;
+    document.getElementById('sitemap-gen-btn')?.addEventListener('click', async () => {
+      const rawText = document.getElementById('sitemap-gen-urls')?.value || '';
       const urls = rawText.split('\n').map(u => u.trim()).filter(Boolean);
       if (!urls.length) return alert('Enter at least one URL');
 
@@ -1730,10 +1854,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const xmlText = await response.text();
-        placeholder.style.display = 'none';
-        valTable.style.display = 'none';
-        xmlArea.style.display = 'block';
-        xmlArea.value = xmlText;
+        if (placeholder) placeholder.style.display = 'none';
+        if (valTable) valTable.style.display = 'none';
+        if (xmlArea) {
+          xmlArea.style.display = 'block';
+          xmlArea.value = xmlText;
+        }
       } catch (e) {
         alert('Generation failed: ' + e.message);
       }
@@ -1741,52 +1867,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Validate XML
     const sitemapValBtn = document.getElementById('sitemap-val-btn');
-    sitemapValBtn.addEventListener('click', async () => {
-      const sitemapUrl = document.getElementById('sitemap-val-url').value.trim();
-      if (!sitemapUrl) return alert('Enter a sitemap XML URL');
+    if (sitemapValBtn) {
+      sitemapValBtn.addEventListener('click', async () => {
+        const sitemapUrl = document.getElementById('sitemap-val-url')?.value?.trim() || '';
+        if (!sitemapUrl) return alert('Enter a sitemap XML URL');
 
-      const tbody = document.getElementById('sitemap-val-tbody');
-      const statusEl = document.getElementById('sitemap-status');
-      const xmlArea = document.getElementById('sitemap-xml-output');
-      const placeholder = document.getElementById('sitemap-placeholder');
-      const valTable = document.getElementById('sitemap-val-table');
+        const tbody = document.getElementById('sitemap-val-tbody');
+        const statusEl = document.getElementById('sitemap-status');
+        const xmlArea = document.getElementById('sitemap-xml-output');
+        const placeholder = document.getElementById('sitemap-placeholder');
+        const valTable = document.getElementById('sitemap-val-table');
 
-      sitemapValBtn.disabled = true;
-      tbody.innerHTML = '';
-      xmlArea.style.display = 'none';
-      placeholder.style.display = 'none';
-      valTable.style.display = 'table';
-      statusEl.textContent = 'Validating sitemap...';
+        sitemapValBtn.disabled = true;
+        if (tbody) tbody.innerHTML = '';
+        if (xmlArea) xmlArea.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        if (valTable) valTable.style.display = 'table';
+        if (statusEl) statusEl.textContent = 'Validating sitemap...';
 
-      try {
-        const response = await fetch('/api/sitemap/validate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sitemapUrl })
-        });
+        try {
+          const response = await fetch('/api/sitemap/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sitemapUrl })
+          });
 
-        await readSSE(response, (type, data) => {
-          if (type === 'progress') {
-            statusEl.textContent = data;
-          } else if (type === 'result') {
-            const tr = document.createElement('tr');
-            let color = data.status >= 200 && data.status < 300 ? 'var(--intent-trans)' : 'var(--intent-err)';
-            tr.innerHTML = `
-              <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis">${escapeHtml(data.url)}</td>
-              <td style="font-weight:bold; color:${color}">${data.status || data.error}</td>
-              <td style="font-family:monospace">${data.responseTime ? data.responseTime + 'ms' : '—'}</td>
-            `;
-            tbody.appendChild(tr);
-          } else if (type === 'complete') {
-            statusEl.textContent = `Complete! Checked ${data.total} URLs. Healthy: ${data.healthy}, Broken: ${data.broken}.`;
-          }
-        });
-      } catch (e) {
-        statusEl.textContent = 'Validation error: ' + e.message;
-      } finally {
-        sitemapValBtn.disabled = false;
-      }
-    });
+          await readSSE(response, (type, data) => {
+            if (type === 'progress') {
+              if (statusEl) statusEl.textContent = data;
+            } else if (type === 'result') {
+              const tr = document.createElement('tr');
+              let color = data.status >= 200 && data.status < 300 ? 'var(--intent-trans)' : 'var(--intent-err)';
+              tr.innerHTML = `
+                <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis">${escapeHtml(data.url)}</td>
+                <td style="font-weight:bold; color:${color}">${data.status || data.error}</td>
+                <td style="font-family:monospace">${data.responseTime ? data.responseTime + 'ms' : '—'}</td>
+              `;
+              if (tbody) tbody.appendChild(tr);
+            } else if (type === 'complete') {
+              if (statusEl) statusEl.textContent = `Complete! Checked ${data.total} URLs. Healthy: ${data.healthy}, Broken: ${data.broken}.`;
+            }
+          });
+        } catch (e) {
+          if (statusEl) statusEl.textContent = 'Validation error: ' + e.message;
+        } finally {
+          sitemapValBtn.disabled = false;
+        }
+      });
+    }
   }
 
   // ==========================================
@@ -1796,7 +1924,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (robotsBtn) {
     let parsedRules = [];
     robotsBtn.addEventListener('click', async () => {
-      const url = document.getElementById('robots-url').value.trim();
+      const url = document.getElementById('robots-url')?.value?.trim() || '';
       if (!url) return alert('Enter a website URL or domain');
 
       const tbody = document.getElementById('robots-tbody');
@@ -1804,9 +1932,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const issuesEl = document.getElementById('robots-issues');
 
       robotsBtn.disabled = true;
-      tbody.innerHTML = '';
-      issuesEl.innerHTML = '';
-      statusEl.textContent = 'Fetching & analyzing robots.txt...';
+      if (tbody) tbody.innerHTML = '';
+      if (issuesEl) issuesEl.innerHTML = '';
+      if (statusEl) statusEl.textContent = 'Fetching & analyzing robots.txt...';
 
       try {
         const response = await fetch('/api/robots/analyze', {
@@ -1819,9 +1947,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         parsedRules = data.rules || [];
-        statusEl.textContent = `Found ${parsedRules.length} directives.`;
+        if (statusEl) statusEl.textContent = `Found ${parsedRules.length} directives.`;
 
-        // Render rules
         let html = '';
         parsedRules.forEach(r => {
           let badgeClass = r.type === 'Disallow' ? 'error' : 'success';
@@ -1833,27 +1960,27 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>
           `;
         });
-        tbody.innerHTML = html || '<tr><td colspan="3" style="text-align:center; padding:2rem">No directives found</td></tr>';
+        if (tbody) tbody.innerHTML = html || '<tr><td colspan="3" style="text-align:center; padding:2rem">No directives found</td></tr>';
 
-        // Render issues
-        (data.issues || []).forEach(issue => {
-          const colors = { error: 'var(--intent-err)', warning: 'var(--intent-comm)', success: 'var(--intent-trans)', info: 'var(--intent-info)' };
-          issuesEl.innerHTML += `
-            <div style="padding:0.6rem 1rem; border-radius:8px; border:1px solid ${colors[issue.type]}30; background:${colors[issue.type]}10; font-size:0.85rem">
-              ${escapeHtml(issue.message)}
-            </div>
-          `;
-        });
+        if (issuesEl) {
+          (data.issues || []).forEach(issue => {
+            const colors = { error: 'var(--intent-err)', warning: 'var(--intent-comm)', success: 'var(--intent-trans)', info: 'var(--intent-info)' };
+            issuesEl.innerHTML += `
+              <div style="padding:0.6rem 1rem; border-radius:8px; border:1px solid ${colors[issue.type]}30; background:${colors[issue.type]}10; font-size:0.85rem">
+                ${escapeHtml(issue.message)}
+              </div>
+            `;
+          });
+        }
       } catch (e) {
-        statusEl.textContent = 'Error: ' + e.message;
+        if (statusEl) statusEl.textContent = 'Error: ' + e.message;
       } finally {
         robotsBtn.disabled = false;
       }
     });
 
-    // Test Path Access
-    document.getElementById('robots-test-btn').addEventListener('click', async () => {
-      const testPath = document.getElementById('robots-test-path').value.trim();
+    document.getElementById('robots-test-btn')?.addEventListener('click', async () => {
+      const testPath = document.getElementById('robots-test-path')?.value?.trim() || '';
       const resultEl = document.getElementById('robots-test-result');
       if (!testPath) return alert('Enter a path to test');
 
@@ -1865,12 +1992,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const data = await response.json();
-        if (data.allowed) {
-          resultEl.textContent = 'ALLOWED ✓';
-          resultEl.style.color = 'var(--intent-trans)';
-        } else {
-          resultEl.textContent = 'BLOCKED ✕';
-          resultEl.style.color = 'var(--intent-err)';
+        if (resultEl) {
+          if (data.allowed) {
+            resultEl.textContent = 'ALLOWED ✓';
+            resultEl.style.color = 'var(--intent-trans)';
+          } else {
+            resultEl.textContent = 'BLOCKED ✕';
+            resultEl.style.color = 'var(--intent-err)';
+          }
         }
       } catch (e) {
         alert('Testing error: ' + e.message);
@@ -1884,7 +2013,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dupCheckBtn = document.getElementById('dup-check-btn');
   if (dupCheckBtn) {
     dupCheckBtn.addEventListener('click', async () => {
-      const rawText = document.getElementById('dup-urls-input').value;
+      const rawText = document.getElementById('dup-urls-input')?.value || '';
       const urls = rawText.split('\n').map(u => u.trim()).filter(Boolean);
       if (urls.length < 2) return alert('Enter at least 2 URLs to compare');
 
@@ -1893,9 +2022,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const countEl = document.getElementById('dup-count');
 
       dupCheckBtn.disabled = true;
-      tbody.innerHTML = '';
-      countEl.textContent = '0';
-      statusEl.textContent = 'Fetching pages & comparing content...';
+      if (tbody) tbody.innerHTML = '';
+      if (countEl) countEl.textContent = '0';
+      if (statusEl) statusEl.textContent = 'Fetching pages & comparing content...';
 
       try {
         const response = await fetch('/api/duplicate/check', {
@@ -1906,11 +2035,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await readSSE(response, (type, data) => {
           if (type === 'progress') {
-            statusEl.textContent = data;
+            if (statusEl) statusEl.textContent = data;
           } else if (type === 'complete') {
             const pairs = data.duplicatePairs || [];
-            countEl.textContent = pairs.length;
-            statusEl.textContent = `Scan complete. Found ${pairs.length} duplicate pairs & ${data.thinPages.length} thin pages.`;
+            if (countEl) countEl.textContent = pairs.length;
+            if (statusEl) statusEl.textContent = `Scan complete. Found ${pairs.length} duplicate pairs & ${data.thinPages.length} thin pages.`;
 
             let html = '';
             pairs.forEach(p => {
@@ -1923,11 +2052,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </tr>
               `;
             });
-            tbody.innerHTML = html || '<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--intent-trans)">No duplicate content detected!</td></tr>';
+            if (tbody) tbody.innerHTML = html || '<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--intent-trans)">No duplicate content detected!</td></tr>';
           }
         });
       } catch (e) {
-        statusEl.textContent = 'Error: ' + e.message;
+        if (statusEl) statusEl.textContent = 'Error: ' + e.message;
       } finally {
         dupCheckBtn.disabled = false;
       }
@@ -1940,15 +2069,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const schemaValBtn = document.getElementById('schema-val-btn');
   if (schemaValBtn) {
     schemaValBtn.addEventListener('click', async () => {
-      const url = document.getElementById('schema-val-url').value.trim();
+      const url = document.getElementById('schema-val-url')?.value?.trim() || '';
       if (!url) return alert('Enter a webpage URL');
 
       const container = document.getElementById('schema-val-container');
       const statusEl = document.getElementById('schema-val-status');
 
       schemaValBtn.disabled = true;
-      container.innerHTML = '';
-      statusEl.textContent = 'Extracting & validating JSON-LD schemas...';
+      if (container) container.innerHTML = '';
+      if (statusEl) statusEl.textContent = 'Extracting & validating JSON-LD schemas...';
 
       try {
         const response = await fetch('/api/schema/validate', {
@@ -1960,32 +2089,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) throw new Error('Validation request failed');
         const data = await response.json();
 
-        statusEl.textContent = `Found ${data.totalSchemas} schema block(s).`;
+        if (statusEl) statusEl.textContent = `Found ${data.totalSchemas} schema block(s).`;
 
-        if (data.schemas.length === 0) {
-          container.innerHTML = '<div style="text-align:center; color:var(--intent-comm); padding:2rem">No JSON-LD schemas detected on this page</div>';
-        } else {
-          let html = '';
-          data.schemas.forEach(s => {
-            html += `
-              <div style="background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:1rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
-                  <h4 style="color:var(--accent); margin:0">${escapeHtml(s.type)} Schema</h4>
-                  <span class="badge info">${s.propertiesCount} properties</span>
+        if (container) {
+          if (data.schemas.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:var(--intent-comm); padding:2rem">No JSON-LD schemas detected on this page</div>';
+          } else {
+            let html = '';
+            data.schemas.forEach(s => {
+              html += `
+                <div style="background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:1rem;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
+                    <h4 style="color:var(--accent); margin:0">${escapeHtml(s.type)} Schema</h4>
+                    <span class="badge info">${s.propertiesCount} properties</span>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.5rem">
+                    ${s.issues.map(i => {
+                      const colors = { error: 'var(--intent-err)', warning: 'var(--intent-comm)', success: 'var(--intent-trans)', info: 'var(--intent-info)' };
+                      return `<div style="padding:0.4rem 0.8rem; border-radius:6px; background:${colors[i.type]}15; color:${colors[i.type]}; font-size:0.85rem">${escapeHtml(i.message)}</div>`;
+                    }).join('')}
+                  </div>
                 </div>
-                <div style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.5rem">
-                  ${s.issues.map(i => {
-                    const colors = { error: 'var(--intent-err)', warning: 'var(--intent-comm)', success: 'var(--intent-trans)', info: 'var(--intent-info)' };
-                    return `<div style="padding:0.4rem 0.8rem; border-radius:6px; background:${colors[i.type]}15; color:${colors[i.type]}; font-size:0.85rem">${escapeHtml(i.message)}</div>`;
-                  }).join('')}
-                </div>
-              </div>
-            `;
-          });
-          container.innerHTML = html;
+              `;
+            });
+            container.innerHTML = html;
+          }
         }
       } catch (e) {
-        statusEl.textContent = 'Error: ' + e.message;
+        if (statusEl) statusEl.textContent = 'Error: ' + e.message;
       } finally {
         schemaValBtn.disabled = false;
       }
