@@ -77,7 +77,23 @@ body {
   100% { filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.5)); }
 }
 
-.app-container { display: flex; height: 100vh; perspective: 1200px; }
+#bg-canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.app-container { 
+  position: relative !important;
+  z-index: 10 !important;
+  display: flex; 
+  height: 100vh; 
+  perspective: 1200px; 
+}
 
 /* ================== SIDEBAR (Cyberpunk Glassmorphism) ================== */
 .sidebar { 
