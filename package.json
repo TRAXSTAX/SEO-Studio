@@ -1,0 +1,31 @@
+{
+  "name": "seo-studio",
+  "version": "1.0.0",
+  "description": "Enterprise-grade suite of 16 professional SEO tools for technical audit, content optimization, GSC intelligence, and SERP simulation.",
+  "main": "server.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "keywords": [
+    "seo",
+    "seo-audit",
+    "gsc-analyzer",
+    "serp-preview",
+    "technical-seo",
+    "lighthouse",
+    "schema-generator"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "chrome-launcher": "^1.2.1",
+    "csv-parser": "^3.2.1",
+    "express": "^5.2.1",
+    "lighthouse": "^13.4.1",
+    "multer": "^2.3.0",
+    "node-html-parser": "^9.0.4",
+    "puppeteer": "^25.10.0",
+    "sqlite3": "^6.0.1",
+    "stopword": "^3.1.5"
+  }
+}

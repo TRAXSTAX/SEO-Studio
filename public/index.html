@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise SEO Studio</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="brand">
+        <div class="logo-icon"></div>
+        <h2>Enterprise SEO</h2>
+      </div>
+      <ul class="nav-links">
+        <li class="nav-item active" tabindex="0" role="button" data-target="master-audit">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Master Audit
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="log-analyzer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          Log Analyzer
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="gsc-analyzer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          GSC Analyzer
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="content-grader">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 3v5h5M16 13H8M16 17H8M10 9H8"/></svg>
+          Content Grader
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="web-vitals">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m12 16 4-4-4-4"/><path d="M8 12h8"/></svg>
+          Web Vitals
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="intent-mapper">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Intent Mapper
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="site-crawler">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Site Crawler
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="link-finder">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Internal Link Finder
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="cannibalization-checker">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9"/><path d="M15 13l-3-3"/><path d="M20 4l-4.5 4.5"/><path d="M14 4l-4 4"/></svg>
+          Cannibalization Checker
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="schema-generator">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Schema Generator
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="meta-optimizer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          Meta Tag Optimizer
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="broken-links">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07L16 20"/><line x1="8" y1="2" x2="16" y2="10"/><line x1="2" y1="8" x2="10" y2="16"/></svg>
+          Broken Links
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="history-trends">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          History & Trends
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="serp-previewer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          SERP Previewer
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="bulk-status">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Bulk Status Checker
+        </li>
+        <li class="nav-item" tabindex="0" role="button" data-target="heading-analyzer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="M17 10l3 3-3 3"/></svg>
+          Heading Analyzer
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Viewport -->
+    <main class="viewport">
+      <button id="mobile-menu-btn" style="display:none; position:fixed; top:1rem; left:1rem; z-index:101; background:var(--accent); border:none; color:white; padding:0.8rem; border-radius:8px; cursor:pointer; font-size:1.2rem;">☰</button>
+      
+      <!-- TOOL 6: Master Audit -->
+      <section id="master-audit" class="tool-view active">
+        <div class="view-header">
+          <h1>Master SEO Audit</h1>
+          <p>The ultimate 360° health check. Orchestrates Web Vitals, Crawling, Semantic NLP, and Search Intent in a single run.</p>
+        </div>
+        
+        <div class="input-panel" style="margin-bottom: 2rem;">
+          <div style="margin-bottom: 1rem;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+              <input type="checkbox" id="master-batch-toggle" /> Enable Batch Mode (Sitemap)
+            </label>
+          </div>
+          <div class="url-bar">
+            <input type="text" id="master-url" placeholder="https://example.com/page (or sitemap.xml in Batch Mode)" style="flex:2" />
+            <input type="text" id="master-keyword" placeholder="Target Keyword" style="flex:1; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); outline: none;" />
+            <button id="master-btn" class="btn">Run 360° Audit</button>
+          </div>
+          <div id="master-status" class="progress-text" style="white-space: pre-wrap;">Ready</div>
+        </div>
+
+        <div id="master-results" style="display:none; animation: slideUp 0.4s forwards;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+            <button id="master-pdf-btn" class="btn" style="background: var(--intent-comm); color: #000;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PDF Report
+            </button>
+          </div>
+          <!-- Top Row: Score and Intent -->
+          <div class="split-view" style="margin-bottom: 2rem;">
+            <div class="metric-card" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <h3>Overall SEO Health</h3>
+              <div class="grade-circle" id="master-score" style="margin: 1rem 0; width:120px; height:120px; font-size:3rem; border-color: var(--text-muted)">--</div>
+            </div>
+            <div class="metric-card" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <h3>Search Intent Alignment</h3>
+              <div id="master-intent-badge" class="badge" style="font-size: 1.2rem; padding: 0.8rem 1.5rem; margin-top:1rem; border: 1px solid var(--border)">--</div>
+              <div id="master-intent-conf" style="margin-top:0.5rem; font-family:monospace; color:var(--text-muted)">--% Match</div>
+            </div>
+          </div>
+
+          <!-- Bottom Row: Vitals & Content -->
+          <div class="split-view">
+            <div class="results-panel" style="flex:1;">
+              <label>Core Web Vitals</label>
+              <table style="margin-top: 1rem;">
+                <tr><td>LCP (Load Time)</td><td id="master-vitals-lcp" style="font-weight:bold; color:var(--accent)">--</td></tr>
+                <tr><td>CLS (Visual Stability)</td><td id="master-vitals-cls" style="font-weight:bold; color:var(--accent)">--</td></tr>
+                <tr><td>TBT (Interactivity)</td><td id="master-vitals-tbt" style="font-weight:bold; color:var(--accent)">--</td></tr>
+              </table>
+            </div>
+            
+            <div class="results-panel" style="flex:1;">
+              <label>Semantic Content Optimization</label>
+              <div style="font-size: 1.5rem; margin: 1rem 0;">Grade: <span id="master-content-grade" style="color:var(--intent-trans); font-weight:800;">--</span></div>
+              <div style="font-size: 0.85rem; color:var(--text-muted); text-transform:uppercase; margin-bottom: 0.5rem;">Missing Entities:</div>
+              <div id="master-content-missing" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                <!-- Tags -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Third Row: Technical SEO -->
+          <div class="split-view" style="margin-top: 2rem;">
+            <div class="results-panel" style="flex:1;">
+              <label>Technical SEO Deep-Dive</label>
+              <table style="margin-top: 1rem;">
+                <tr><td>Canonical Tag</td><td id="master-tech-canonical" style="font-weight:bold; color:var(--text)">--</td></tr>
+                <tr><td>Schema.org (JSON-LD)</td><td id="master-tech-schema" style="font-weight:bold; color:var(--text)">--</td></tr>
+                <tr><td>Internal/External Links</td><td id="master-tech-links" style="font-weight:bold; color:var(--text)">--</td></tr>
+                <tr><td>Broken Links Detected</td><td id="master-tech-broken" style="font-weight:bold; color:var(--accent)">--</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Fourth Row: Action Plan -->
+          <div class="split-view" style="margin-top: 2rem;">
+            <div class="results-panel" style="flex:1;">
+              <label>AI-Generated Action Plan</label>
+              <ul id="master-action-plan" style="margin-top: 1rem; list-style: none; padding: 0;">
+                <!-- Tasks injected here -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOL 1: Log Analyzer -->
+      <section id="log-analyzer" class="tool-view">
+        <div class="view-header">
+          <h1>Log File Analyzer</h1>
+          <p>Extract bot traffic from massive server logs.</p>
+        </div>
+        <div class="view-content">
+          <div class="upload-zone" id="drop-zone">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <p>Drag & Drop your .log file here<br><span style="font-size: 0.8rem; color: var(--text-muted)">or click to browse</span></p>
+            <input type="file" id="file-input" style="display:none">
+          </div>
+          <div class="progress-container" id="log-progress">
+            <div class="progress-bar"><div class="progress-fill" id="log-progress-fill"></div></div>
+            <div class="progress-text" id="log-progress-text">Waiting for upload...</div>
+          </div>
+          
+          <div class="results-grid" id="log-results" style="display: none;">
+            <div class="metric-card">
+              <h3>Bot Traffic</h3>
+              <div class="metric-value" id="bot-percentage">0%</div>
+            </div>
+            <div class="metric-card">
+              <h3>Total Hits</h3>
+              <div class="metric-value" id="total-hits">0</div>
+            </div>
+            <div class="metric-card">
+              <h3>Top Bot</h3>
+              <div class="metric-value" id="top-bot" style="font-size:1.5rem">None</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Tool 1.5: GSC Analyzer ==================== -->
+      <section id="gsc-analyzer" class="tool-view">
+        <div class="view-header">
+          <h1>Google Search Console Analyzer</h1>
+          <p>Upload your GSC Queries CSV to instantly find Low-Hanging Fruit and CTR Opportunities.</p>
+        </div>
+        
+        <div class="input-panel" style="margin-bottom: 2rem;">
+          <input type="file" id="gsc-file" accept=".csv" style="display:none" />
+          <button id="gsc-upload-btn" class="btn" onclick="document.getElementById('gsc-file').click()">Upload GSC Queries.csv</button>
+          <div id="gsc-status" class="progress-text" style="display:inline-block; margin-left:1rem;">Awaiting CSV Upload...</div>
+        </div>
+        
+        <div id="gsc-results-container" style="display: none; flex-direction: column; gap: 2rem;">
+          <div class="split-view">
+            <div class="results-panel" style="flex: 1">
+              <label>Low-Hanging Fruit (Positions 11-20, High Impressions)</label>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">Add internal links to push these to Page 1.</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Query</th>
+                    <th>Impr.</th>
+                    <th>Pos.</th>
+                  </tr>
+                </thead>
+                <tbody id="gsc-low-hanging"></tbody>
+              </table>
+            </div>
+            
+            <div class="results-panel" style="flex: 1">
+              <label>CTR Opportunities (Page 1, Low CTR)</label>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">Optimize Meta Tags for these queries.</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Query</th>
+                    <th>CTR</th>
+                    <th>Pos.</th>
+                  </tr>
+                </thead>
+                <tbody id="gsc-ctr-opps"></tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="results-panel">
+            <label>High Volume Winners (Top 10 Clicks)</label>
+            <table>
+              <thead>
+                <tr>
+                  <th>Query</th>
+                  <th>Clicks</th>
+                  <th>Impr.</th>
+                  <th>CTR</th>
+                  <th>Pos.</th>
+                </tr>
+              </thead>
+              <tbody id="gsc-winners"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOL 2: Content Grader -->
+      <section id="content-grader" class="tool-view">
+        <div class="view-header">
+          <h1>Semantic Content Grader</h1>
+          <p>Scrape competitors and grade your draft against TF-IDF entities.</p>
+        </div>
+        <div class="view-content split-view">
+          <div class="input-panel">
+            <label for="grader-keyword">Target Keyword</label>
+            <input type="text" id="grader-keyword" placeholder="e.g., best running shoes">
+            <label for="grader-draft">Draft Article Content</label>
+            <textarea id="grader-draft" placeholder="Paste your article here..." style="height:250px"></textarea>
+            <button class="btn" id="grader-btn">Analyze Semantic Score</button>
+            <div class="progress-text" id="grader-status" style="margin-top: 1rem; color: var(--accent);">Ready</div>
+          </div>
+          <div class="results-panel">
+            <div class="grade-circle" id="grade-circle">?</div>
+            <h3 style="margin-top: 1rem">Missing Semantic Entities</h3>
+            <ul class="missing-terms" id="missing-terms">
+              <li style="color:var(--text-muted)">Run analysis to see missing terms...</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOL 3: Web Vitals -->
+      <section id="web-vitals" class="tool-view">
+        <div class="view-header">
+          <h1>Core Web Vitals</h1>
+          <p>Run a headless Chrome Lighthouse audit.</p>
+        </div>
+        <div class="view-content">
+          <div class="url-bar">
+            <input type="text" id="vitals-url" placeholder="https://example.com">
+            <button class="btn" id="vitals-btn">Run Audit</button>
+          </div>
+          <div class="progress-text" id="vitals-status" style="margin: 1rem 0; color: var(--accent);">Ready</div>
+          
+          <div class="results-grid" id="vitals-results" style="display: none;">
+            <div class="metric-card">
+              <h3>Performance Score</h3>
+              <div class="metric-value" id="vitals-score">0</div>
+            </div>
+            <div class="metric-card">
+              <h3>LCP (Largest Paint)</h3>
+              <div class="metric-value" id="vitals-lcp" style="font-size:1.5rem">0s</div>
+            </div>
+            <div class="metric-card">
+              <h3>CLS (Layout Shift)</h3>
+              <div class="metric-value" id="vitals-cls" style="font-size:1.5rem">0</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Tool 4: Intent Mapper ==================== -->
+      <section id="intent-mapper" class="tool-view">
+        <div class="view-header">
+          <h1>Search Intent Mapper</h1>
+          <p>Classify keyword lists by SERP footprint intent (Info, Nav, Comm, Trans)</p>
+        </div>
+        
+        <div class="split-view">
+          <div class="input-panel" style="flex: 0.4">
+            <label for="intent-keywords">Paste Keywords (One per line)</label>
+            <textarea id="intent-keywords" rows="15" placeholder="e.g. best running shoes&#10;nike store near me&#10;how to tie a tie"></textarea>
+            <button id="intent-btn" class="btn" style="width:100%">Classify Intent</button>
+            <div id="intent-status" class="progress-text" style="margin-top:1rem; text-align:center">Ready</div>
+          </div>
+          <div class="results-panel" style="flex: 0.6">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
+              <label>Mapping Results</label>
+              <div id="intent-count" style="font-family:monospace; color:var(--accent)">0 / 0</div>
+            </div>
+            <div style="max-height: 400px; overflow-y:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Keyword</th>
+                    <th>Intent</th>
+                    <th>Confidence</th>
+                  </tr>
+                </thead>
+                <tbody id="intent-tbody">
+                  <!-- Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Tool 5: Site Crawler ==================== -->
+      <section id="site-crawler" class="tool-view">
+        <div class="view-header">
+          <h1>Site Crawler</h1>
+          <p>Lightning-fast internal spider to audit titles, descriptions, and status codes.</p>
+        </div>
+        
+        <div class="input-panel" style="margin-bottom: 2rem;">
+          <label>Starting URL</label>
+          <div class="url-bar">
+            <input type="text" id="crawler-url" placeholder="https://example.com" />
+            <input type="number" id="crawler-max" placeholder="Max Pages (default 50)" style="width: 150px; padding: 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); outline: none;" />
+            <button id="crawler-btn" class="btn">Start Crawl</button>
+          </div>
+          <div id="crawler-status" class="progress-text">Ready to crawl</div>
+        </div>
+        
+        <div class="results-panel">
+          <label>Crawl Results (<span id="crawler-count">0</span> pages)</label>
+          <div style="max-height: 500px; overflow-y: auto; margin-top: 1rem;">
+            <table>
+              <thead>
+                <tr>
+                  <th>URL</th>
+                  <th>Status</th>
+                  <th>Title (Length)</th>
+                  <th>Meta Desc (Length)</th>
+                  <th>In/Out Links</th>
+                </tr>
+              </thead>
+              <tbody id="crawler-tbody">
+                <!-- Rows injected here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOL 6.5: Internal Link Finder -->
+      <section id="link-finder" class="tool-view">
+        <div class="view-header">
+          <h1>Internal Link Opportunity Finder</h1>
+          <p>Scans your entire sitemap to find unlinked mentions of your target keyword to build topical authority.</p>
+        </div>
+        
+        <div class="input-panel" style="margin-bottom: 2rem;">
+          <div class="url-bar">
+            <input type="text" id="finder-sitemap" placeholder="https://example.com/sitemap.xml" style="flex:1" />
+            <input type="text" id="finder-target" placeholder="Target URL to boost" style="flex:1" />
+            <input type="text" id="finder-keyword" placeholder="Target Keyword" style="flex:1; padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); outline: none;" />
+            <button id="finder-btn" class="btn">Find Opportunities</button>
+          </div>
+          <div id="finder-status" class="progress-text">Ready to scan</div>
+        </div>
+        
+        <div class="results-panel">
+          <label>Opportunities Found (<span id="finder-count">0</span>)</label>
+          <div style="max-height: 500px; overflow-y: auto; margin-top: 1rem;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Source Page (Add link here)</th>
+                  <th>Target URL</th>
+                  <th>Matched Keyword</th>
+                </tr>
+              </thead>
+              <tbody id="finder-tbody">
+                <!-- Rows injected here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Tool 6.8: Cannibalization Checker ==================== -->
+      <section id="cannibalization-checker" class="tool-view">
+        <div class="view-header">
+          <h1>Keyword Cannibalization Checker</h1>
+          <p>Scan your sitemap to find pages that are fighting each other for the exact same semantic keywords.</p>
+        </div>
+        
+        <div class="input-panel" style="margin-bottom: 2rem;">
+          <div class="url-bar">
+            <input type="text" id="cannibal-sitemap" placeholder="https://example.com/sitemap.xml" style="flex:1" />
+            <button id="cannibal-btn" class="btn">Scan for Conflicts</button>
+          </div>
+          <div id="cannibal-status" class="progress-text">Ready to scan</div>
+        </div>
+        
+        <div class="results-panel">
+          <label>Conflict Clusters (<span id="cannibal-count">0</span>)</label>
+          <div id="cannibal-results" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Clusters injected here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Tool 6.9: Schema Generator ==================== -->
+      <section id="schema-generator" class="tool-view">
+        <div class="view-header">
+          <h1>Schema Markup Generator</h1>
+          <p>Instantly generate perfectly formatted JSON-LD for rich snippets.</p>
+        </div>
+        
+        <div class="split-view">
+          <div class="input-panel" style="flex: 1">
+            <label>Schema Type</label>
+            <select id="schema-type" style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-input); color:var(--text); margin-bottom:1rem;">
+              <option value="Product">Product</option>
+              <option value="Article">Article</option>
+              <option value="FAQ">FAQ Page</option>
+            </select>
+            
+            <div id="schema-fields-container" style="display:flex; flex-direction:column; gap:1rem;">
+              <!-- Dynamic Fields -->
+            </div>
+            
+            <button id="schema-btn" class="btn" style="margin-top:1rem; width:100%">Generate JSON-LD</button>
+          </div>
+          
+          <div class="results-panel" style="flex: 1">
+            <label>Output Code (Copy into &lt;head&gt;)</label>
+            <pre id="schema-output" style="background:var(--bg-hover); padding:1rem; border-radius:8px; overflow-x:auto; font-size:0.85rem; color:var(--intent-info); margin-top:1rem; height: 350px;"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Tool 6.91: Meta Tag Optimizer ==================== -->
+      <section id="meta-optimizer" class="tool-view">
+        <div class="view-header">
+          <h1>AI Meta Tag Optimizer</h1>
+          <p>Generate high-CTR Titles & Descriptions perfectly sized for Google.</p>
+        </div>
+        
+        <div class="split-view">
+          <div class="input-panel" style="flex: 1">
+            <label for="meta-keyword">Target Keyword</label>
+            <input type="text" id="meta-keyword" placeholder="e.g. blue summer dresses" style="margin-bottom:1rem" />
+            
+            <label for="meta-brand">Brand Name</label>
+            <input type="text" id="meta-brand" placeholder="e.g. Ambar Stores" style="margin-bottom:1rem" value="Ambar Stores" />
+            
+            <label>Angle</label>
+            <select id="meta-angle" style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-input); color:var(--text); margin-bottom:1rem;">
+              <option value="ecommerce">E-commerce / Product List</option>
+              <option value="informational">Informational / Blog Post</option>
+              <option value="local">Local Business</option>
+            </select>
+            
+            <button id="meta-btn" class="btn" style="width:100%">Generate Variations</button>
+          </div>
+          
+          <div class="results-panel" style="flex: 1">
+            <label>Optimized Variations</label>
+            <div id="meta-results" style="margin-top: 1rem; display:flex; flex-direction:column; gap:1rem;">
+              <!-- Variations injected here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Tool 6.92: Broken Links Scanner ==================== -->
+      <section id="broken-links" class="tool-view">
+        <div class="view-header">
+          <h1>Broken Outbound Link Scanner</h1>
+          <p>Scan a page for broken external links that bleed PageRank.</p>
+        </div>
+        
+        <div class="input-panel" style="margin-bottom: 2rem;">
+          <div class="url-bar">
+            <input type="text" id="broken-url" placeholder="https://example.com/blog-post" style="flex:1" />
+            <button id="broken-btn" class="btn">Scan Page</button>
+          </div>
+          <div id="broken-status" class="progress-text">Ready to scan</div>
+        </div>
+        
+        <div class="results-panel">
+          <label>External Links Audited (<span id="broken-count">0</span>)</label>
+          <div style="max-height: 500px; overflow-y: auto; margin-top: 1rem;">
+            <table>
+              <thead>
+                <tr>
+                  <th>External URL</th>
+                  <th>Status</th>
+                  <th>Health</th>
+                </tr>
+              </thead>
+              <tbody id="broken-tbody">
+                <!-- Rows injected here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOL 7: History & Trends -->
+      <section id="history-trends" class="tool-view">
+        <div class="view-header">
+          <h1>History & Trends</h1>
+          <p>Track your SEO health progression over time across all your pages.</p>
+        </div>
+        
+        <div class="result-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+             <h2 class="card-title">Overall Score Progression</h2>
+             <button id="refresh-history-btn" class="btn">Refresh Data</button>
+          </div>
+          <canvas id="history-chart" width="800" height="400"></canvas>
+        </div>
+      </section>
+
+      <!-- TOOL: SERP Snippet Previewer -->
+      <section id="serp-previewer" class="tool-view">
+        <div class="view-header">
+          <h1>SERP Snippet Previewer</h1>
+          <p>See exactly how your page will appear in Google search results with pixel-accurate title truncation.</p>
+        </div>
+
+        <div class="split-view">
+          <div class="input-panel" style="flex: 0.45">
+            <label for="serp-title">Page Title</label>
+            <input type="text" id="serp-title" placeholder="e.g. Best Running Shoes for Men 2026 | Your Brand" maxlength="200" />
+            <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:0.8rem; color:var(--text-muted)">
+              <span id="serp-title-chars">0 characters</span>
+              <span id="serp-title-px">0px / 580px</span>
+            </div>
+
+            <label for="serp-url" style="margin-top:1rem">Page URL</label>
+            <input type="text" id="serp-url-preview" placeholder="https://example.com/your-page" />
+
+            <label for="serp-desc" style="margin-top:1rem">Meta Description</label>
+            <textarea id="serp-desc" rows="4" placeholder="Write your meta description here..." maxlength="320"></textarea>
+            <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:0.8rem; color:var(--text-muted)">
+              <span id="serp-desc-chars">0 characters</span>
+              <span id="serp-desc-limit">Desktop: 160 chars / Mobile: 120 chars</span>
+            </div>
+
+            <label style="margin-top:1rem">Preview Mode</label>
+            <div style="display:flex; gap:0.5rem; margin-top:0.5rem">
+              <button class="btn" id="serp-desktop-btn" style="flex:1; font-size:0.85rem">Desktop</button>
+              <button class="btn" id="serp-mobile-btn" style="flex:1; font-size:0.85rem; background:var(--bg-input); border:1px solid var(--border)">Mobile</button>
+            </div>
+          </div>
+
+          <div class="results-panel" style="flex: 0.55">
+            <label>Google SERP Preview</label>
+            <div id="serp-preview-container" style="margin-top:1rem; background:#1a1a2e; border-radius:12px; padding:2rem; border:1px solid var(--border);">
+              <!-- Desktop Preview -->
+              <div id="serp-desktop-preview">
+                <div style="font-family: Arial, sans-serif; max-width: 600px;">
+                  <div id="serp-render-url" style="font-size: 14px; color: #bdc1c6; line-height: 1.3; margin-bottom: 4px; display:flex; align-items:center; gap:8px;">
+                    <span style="width:26px; height:26px; border-radius:50%; background:#303134; display:inline-flex; align-items:center; justify-content:center; font-size:12px; color:#8ab4f8; flex-shrink:0;">S</span>
+                    <div>
+                      <div style="font-size:14px; color:#dadce0;">example.com</div>
+                      <div id="serp-render-breadcrumb" style="font-size:12px; color:#bdc1c6;">https://example.com › your-page</div>
+                    </div>
+                  </div>
+                  <div id="serp-render-title" style="font-size: 20px; color: #8ab4f8; line-height: 1.3; margin-bottom: 4px; cursor:pointer; font-family: Arial, sans-serif;">Best Running Shoes for Men 2026 | Your Brand</div>
+                  <div id="serp-render-desc" style="font-size: 14px; color: #bdc1c6; line-height: 1.58; font-family: Arial, sans-serif;">Write your meta description here and see how it will appear in the search results. Google typically shows up to 160 characters on desktop.</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap;">
+              <div class="metric-card" style="flex:1; min-width:120px; padding:1rem;">
+                <h3>Title Width</h3>
+                <div id="serp-metric-width" class="metric-value" style="font-size:1.5rem; color:var(--intent-trans)">0px</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px">Max: 580px desktop</div>
+              </div>
+              <div class="metric-card" style="flex:1; min-width:120px; padding:1rem;">
+                <h3>Title Length</h3>
+                <div id="serp-metric-len" class="metric-value" style="font-size:1.5rem">0</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px">Recommended: 50-60</div>
+              </div>
+              <div class="metric-card" style="flex:1; min-width:120px; padding:1rem;">
+                <h3>Description</h3>
+                <div id="serp-metric-desc" class="metric-value" style="font-size:1.5rem">0</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px">Recommended: 150-160</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOL: Bulk Status Checker -->
+      <section id="bulk-status" class="tool-view">
+        <div class="view-header">
+          <h1>Bulk HTTP Status Checker</h1>
+          <p>Paste a list of URLs to check their HTTP status codes, redirects, and response times — all concurrently.</p>
+        </div>
+
+        <div class="split-view">
+          <div class="input-panel" style="flex: 0.35">
+            <label for="bulk-urls">URLs (one per line)</label>
+            <textarea id="bulk-urls" rows="15" placeholder="https://example.com/page-1&#10;https://example.com/page-2&#10;https://example.com/old-url&#10;..."></textarea>
+            <button id="bulk-btn" class="btn" style="width:100%; margin-top:1rem">Check All URLs</button>
+            <div id="bulk-status-text" class="progress-text" style="margin-top:1rem; text-align:center">Ready</div>
+          </div>
+
+          <div class="results-panel" style="flex: 0.65">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
+              <label>Results (<span id="bulk-count">0</span> URLs)</label>
+              <button id="bulk-export-btn" class="btn" style="font-size:0.8rem; padding:0.5rem 1rem; background:var(--bg-input); border:1px solid var(--border)">Export CSV</button>
+            </div>
+
+            <!-- Summary Cards -->
+            <div id="bulk-summary" style="display:none; grid-template-columns:repeat(5, 1fr); gap:0.5rem; margin-bottom:1rem">
+              <div class="metric-card" style="padding:0.8rem"><h3>2xx OK</h3><div id="bulk-ok" class="metric-value" style="font-size:1.3rem; color:var(--intent-trans)">0</div></div>
+              <div class="metric-card" style="padding:0.8rem"><h3>3xx Redirect</h3><div id="bulk-redir" class="metric-value" style="font-size:1.3rem; color:var(--intent-comm)">0</div></div>
+              <div class="metric-card" style="padding:0.8rem"><h3>4xx Client</h3><div id="bulk-client" class="metric-value" style="font-size:1.3rem; color:var(--intent-err)">0</div></div>
+              <div class="metric-card" style="padding:0.8rem"><h3>5xx Server</h3><div id="bulk-server" class="metric-value" style="font-size:1.3rem; color:var(--intent-err)">0</div></div>
+              <div class="metric-card" style="padding:0.8rem"><h3>Timeout</h3><div id="bulk-timeout" class="metric-value" style="font-size:1.3rem; color:var(--text-muted)">0</div></div>
+            </div>
+
+            <div style="max-height: 500px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>URL</th>
+                    <th>Status</th>
+                    <th>Final URL</th>
+                    <th>Redirects</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody id="bulk-tbody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOL: Heading Structure Analyzer -->
+      <section id="heading-analyzer" class="tool-view">
+        <div class="view-header">
+          <h1>Heading Structure Analyzer</h1>
+          <p>Visualize the H1–H6 hierarchy of any page as a tree and detect structural issues.</p>
+        </div>
+
+        <div class="split-view">
+          <div class="input-panel" style="flex:0.35">
+            <label for="heading-url">Page URL</label>
+            <div class="url-bar">
+              <input type="text" id="heading-url" placeholder="https://example.com/page" />
+              <button id="heading-btn" class="btn">Analyze</button>
+            </div>
+            <div id="heading-status" class="progress-text">Ready</div>
+
+            <div id="heading-issues" style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.5rem"></div>
+          </div>
+
+          <div class="results-panel" style="flex:0.65">
+            <label>Heading Tree</label>
+            <div id="heading-tree" style="margin-top:1rem; font-family: 'JetBrains Mono', monospace; font-size:0.85rem; line-height:1.8; padding:1rem; background:var(--bg-input); border-radius:8px; min-height:200px; max-height:600px; overflow-y:auto; border:1px solid var(--border)">
+              <div style="color:var(--text-muted); text-align:center; padding:2rem">Enter a URL and click Analyze</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/app.js?v=3"></script>
+</body>
+</html>
