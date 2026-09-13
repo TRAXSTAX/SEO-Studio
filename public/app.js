@@ -760,13 +760,13 @@ document.addEventListener('DOMContentLoaded', () => {
         jsonld = {
           "@context": "https://schema.org/",
           "@type": "Product",
-          "name": document.getElementById('sc-name').value || "Example Product",
-          "image": [ document.getElementById('sc-img').value || "https://example.com/img.jpg" ],
-          "description": document.getElementById('sc-desc').value || "Example description",
+          "name": document.getElementById('sc-name')?.value || "Example Product",
+          "image": [ document.getElementById('sc-img')?.value || "https://example.com/img.jpg" ],
+          "description": document.getElementById('sc-desc')?.value || "Example description",
           "offers": {
             "@type": "Offer",
             "priceCurrency": "USD",
-            "price": document.getElementById('sc-price').value || "0.00",
+            "price": document.getElementById('sc-price')?.value || "0.00",
             "availability": "https://schema.org/InStock"
           }
         };
@@ -774,12 +774,12 @@ document.addEventListener('DOMContentLoaded', () => {
         jsonld = {
           "@context": "https://schema.org",
           "@type": "NewsArticle",
-          "headline": document.getElementById('sc-headline').value || "Example Headline",
-          "image": [ document.getElementById('sc-img').value || "https://example.com/img.jpg" ],
-          "datePublished": document.getElementById('sc-date').value || new Date().toISOString(),
+          "headline": document.getElementById('sc-headline')?.value || "Example Headline",
+          "image": [ document.getElementById('sc-img')?.value || "https://example.com/img.jpg" ],
+          "datePublished": document.getElementById('sc-date')?.value || new Date().toISOString(),
           "author": [{
               "@type": "Person",
-              "name": document.getElementById('sc-author').value || "Author"
+              "name": document.getElementById('sc-author')?.value || "Author"
           }]
         };
       } else if (type === 'FAQ') {
@@ -789,13 +789,13 @@ document.addEventListener('DOMContentLoaded', () => {
           "mainEntity": [
             {
               "@type": "Question",
-              "name": document.getElementById('sc-q1').value || "Question 1?",
-              "acceptedAnswer": { "@type": "Answer", "text": document.getElementById('sc-a1').value || "Answer 1" }
+              "name": document.getElementById('sc-q1')?.value || "Question 1?",
+              "acceptedAnswer": { "@type": "Answer", "text": document.getElementById('sc-a1')?.value || "Answer 1" }
             },
             {
               "@type": "Question",
-              "name": document.getElementById('sc-q2').value || "Question 2?",
-              "acceptedAnswer": { "@type": "Answer", "text": document.getElementById('sc-a2').value || "Answer 2" }
+              "name": document.getElementById('sc-q2')?.value || "Question 2?",
+              "acceptedAnswer": { "@type": "Answer", "text": document.getElementById('sc-a2')?.value || "Answer 2" }
             }
           ]
         };
