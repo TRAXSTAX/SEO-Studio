@@ -4,6 +4,97 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof str !== 'string') return str;
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   };
+
+  // ==========================================
+  // Pixel Width & Intent/KD Dynamic Helpers
+  // ==========================================
+  const measureCanvas = document.createElement('canvas');
+  const measureCtx = measureCanvas.getContext('2d');
+
+  function calculatePixelWidth(text, fontSize = '20px', fontFamily = 'Arial, sans-serif') {
+    if (!text) return 0;
+    const fontCss = typeof fontSize === 'number' ? `${fontSize}px` : (fontSize || '20px');
+    measureCtx.font = `${fontCss} ${fontFamily}`;
+    return Math.round(measureCtx.measureText(text).width);
+  }
+  window.calculatePixelWidth = calculatePixelWidth;
+
+  function getKeywordIntent(keyword) {
+    if (!keyword) return 'Informational';
+    const kw = keyword.toLowerCase().trim();
+    
+    const transPatterns = ['buy', 'price', 'cheap', 'deal', 'discount', 'coupon', 'order', 'purchase', 'sale', 'shipping', 'delivery', 'subscribe', 'download', 'hire', 'book', 'rent', 'shop', 'cost', 'pay', 'store'];
+    const commPatterns = ['best', 'top', 'review', 'reviews', 'vs', 'versus', 'comparison', 'compare', 'alternative', 'alternatives', 'pros and cons', 'worth it', 'should i', 'recommend', 'rating'];
+    const navPatterns = ['login', 'sign in', 'sign up', 'account', 'dashboard', 'support', 'contact', 'customer service', 'official', 'website', '.com', '.org', '.net', 'app', 'portal', 'home'];
+    const infoPatterns = ['how', 'what', 'why', 'when', 'where', 'who', 'which', 'guide', 'tutorial', 'tips', 'ideas', 'examples', 'definition', 'meaning', 'explain', 'learn', 'understanding', 'template'];
+
+    for (const p of transPatterns) {
+      if (new RegExp(`\\b${p}\\b`, 'i').test(kw)) return 'Transactional';
+    }
+    for (const p of commPatterns) {
+      if (new RegExp(`\\b${p}\\b`, 'i').test(kw)) return 'Commercial';
+    }
+    for (const p of navPatterns) {
+      if (new RegExp(`\\b${p}\\b`, 'i').test(kw)) return 'Navigational';
+    }
+    for (const p of infoPatterns) {
+      if (new RegExp(`\\b${p}\\b`, 'i').test(kw)) return 'Informational';
+    }
+    return 'Informational';
+  }
+
+  function calculateKD(keyword) {
+    if (!keyword) return 30;
+    const kw = keyword.toLowerCase().trim();
+    const wordCount = kw.split(/\s+/).length;
+    let baseKD = 75 - (wordCount * 12);
+    let hash = 0;
+    for (let i = 0; i < kw.length; i++) {
+      hash = (hash << 5) - hash + kw.charCodeAt(i);
+      hash |= 0;
+    }
+    const variance = (Math.abs(hash) % 25) - 12;
+    return Math.max(5, Math.min(98, Math.round(baseKD + variance)));
+  }
+
+  function renderIntentBadge(intent) {
+    const raw = (intent || 'Informational').toLowerCase();
+    let titleCase = 'Informational';
+    if (raw.includes('trans')) titleCase = 'Transactional';
+    else if (raw.includes('comm')) titleCase = 'Commercial';
+    else if (raw.includes('nav')) titleCase = 'Navigational';
+    return `<span class="badge ${titleCase}" style="font-weight:700;">${titleCase}</span>`;
+  }
+
+  function renderKDFlameMeter(kd) {
+    let flames = '🔥';
+    let label = 'Easy';
+    let color = '#10b981';
+    
+    if (kd >= 80) {
+      flames = '🔥🔥🔥🔥';
+      label = 'Super Hard';
+      color = '#ef4444';
+    } else if (kd >= 60) {
+      flames = '🔥🔥🔥';
+      label = 'Hard';
+      color = '#f97316';
+    } else if (kd >= 35) {
+      flames = '🔥🔥';
+      label = 'Moderate';
+      color = '#f59e0b';
+    }
+    
+    return `
+      <div class="kd-flame-meter" style="display:inline-flex; align-items:center; gap:6px;">
+        <span style="font-weight:bold; font-size:0.85rem; color:${color}">${kd}</span>
+        <span style="font-size:0.85rem" title="${label} (${kd}/100)">${flames}</span>
+        <div style="width:40px; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+          <div style="width:${kd}%; height:100%; background:${color}; border-radius:3px;"></div>
+        </div>
+      </div>
+    `;
+  }
   
   // ==========================================
   // Navigation Logic
@@ -287,6 +378,14 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('vitals-score').textContent = data.score;
           document.getElementById('vitals-lcp').textContent = data.metrics?.lcp?.displayValue || 'N/A';
           document.getElementById('vitals-cls').textContent = data.metrics?.cls?.displayValue || 'N/A';
+          if (window.renderCWVSpeedDials) {
+            window.renderCWVSpeedDials(document.getElementById('vitals-results'), {
+              score: data.score,
+              lcp: data.metrics?.lcp?.displayValue,
+              cls: data.metrics?.cls?.displayValue,
+              tbt: data.metrics?.tbt?.displayValue
+            });
+          }
           document.getElementById('vitals-btn').disabled = false;
         } else if (type === 'error') {
           status.textContent = 'Error: ' + data;
@@ -330,12 +429,14 @@ document.addEventListener('DOMContentLoaded', () => {
           parsedCount++;
           count.textContent = `${parsedCount} / ${keywords.length}`;
           
+          const kd = calculateKD(data.keyword);
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td style="font-weight: 500">${escapeHtml(data.keyword)}</td>
-            <td><span class="badge ${data.intent}">${data.intent}</span></td>
+            <td>${renderIntentBadge(data.intent)}</td>
+            <td>${renderKDFlameMeter(kd)}</td>
             <td>
-              <div style="font-size:0.85rem; font-weight:bold">${data.confidence}%</div>
+              <div style="font-size:0.85rem; font-weight:bold">${data.confidence}% Match</div>
               <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${data.confidence}%"></div></div>
             </td>
           `;
@@ -840,22 +941,52 @@ document.addEventListener('DOMContentLoaded', () => {
       vars.forEach((v, i) => {
         const tLen = v.t.length;
         const dLen = v.d.length;
+        const tPx = calculatePixelWidth(v.t, '20px', 'Arial, sans-serif');
+        const dPx = calculatePixelWidth(v.d, '14px', 'Arial, sans-serif');
         const tColor = tLen > 60 ? 'var(--intent-err)' : 'var(--intent-trans)';
         const dColor = dLen > 160 ? 'var(--intent-err)' : 'var(--intent-trans)';
+        const tPxColor = tPx > 580 ? 'var(--intent-err)' : 'var(--intent-trans)';
+        const dPxColor = dPx > 960 ? 'var(--intent-err)' : 'var(--intent-trans)';
         
-        results.innerHTML += `
-          <div style="background:var(--bg-hover); padding:1rem; border-radius:8px; border:1px solid var(--border);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-              <strong>Variation ${i+1}</strong>
-            </div>
-            
-            <label style="font-size:0.8rem; color:var(--text-muted);">Title (<span style="color:${tColor}">${tLen}/60</span>)</label>
-            <div style="color:var(--accent); font-size:1.1rem; margin-bottom:1rem; cursor:pointer;" onclick="navigator.clipboard.writeText(this.innerText); alert('Copied!')">${v.t}</div>
-            
-            <label style="font-size:0.8rem; color:var(--text-muted);">Description (<span style="color:${dColor}">${dLen}/160</span>)</label>
-            <div style="color:var(--text); font-size:0.9rem; cursor:pointer;" onclick="navigator.clipboard.writeText(this.innerText); alert('Copied!')">${v.d}</div>
+        const card = document.createElement('div');
+        card.style.cssText = 'background:var(--bg-hover); padding:1rem; border-radius:8px; border:1px solid var(--border); margin-bottom:1rem;';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <strong>Variation ${i+1}</strong>
+            <span style="font-size:0.75rem; color:var(--accent); cursor:pointer;" onclick="navigator.clipboard.writeText(this.parentNode.parentNode.querySelector('.meta-edit-t').value + '\\n' + this.parentNode.parentNode.querySelector('.meta-edit-d').value); alert('Copied!')">Copy All</span>
           </div>
+          
+          <label style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+            <span>Title (<span style="color:${tColor}">${tLen}/60 chars</span>)</span>
+            <span class="meta-t-px" style="color:${tPxColor}; font-weight:bold;">${tPx}px / 580px</span>
+          </label>
+          <input type="text" class="meta-edit-t" value="${escapeHtml(v.t)}" style="width:100%; color:var(--accent); font-size:1rem; margin-bottom:0.8rem; padding:0.6rem; background:var(--bg); border:1px solid var(--border); border-radius:6px;" />
+          
+          <label style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+            <span>Description (<span style="color:${dColor}">${dLen}/160 chars</span>)</span>
+            <span class="meta-d-px" style="color:${dPxColor}; font-weight:bold;">${dPx}px / 960px</span>
+          </label>
+          <textarea class="meta-edit-d" rows="2" style="width:100%; color:var(--text); font-size:0.85rem; padding:0.6rem; background:var(--bg); border:1px solid var(--border); border-radius:6px;">${escapeHtml(v.d)}</textarea>
         `;
+        
+        const editT = card.querySelector('.meta-edit-t');
+        const editD = card.querySelector('.meta-edit-d');
+        const tPxSpan = card.querySelector('.meta-t-px');
+        const dPxSpan = card.querySelector('.meta-d-px');
+        
+        const updateVariationPx = () => {
+          const curTPx = calculatePixelWidth(editT.value, '20px', 'Arial, sans-serif');
+          const curDPx = calculatePixelWidth(editD.value, '14px', 'Arial, sans-serif');
+          tPxSpan.textContent = `${curTPx}px / 580px`;
+          tPxSpan.style.color = curTPx > 580 ? 'var(--intent-err)' : 'var(--intent-trans)';
+          dPxSpan.textContent = `${curDPx}px / 960px`;
+          dPxSpan.style.color = curDPx > 960 ? 'var(--intent-err)' : 'var(--intent-trans)';
+        };
+        
+        editT.addEventListener('input', updateVariationPx);
+        editD.addEventListener('input', updateVariationPx);
+        
+        results.appendChild(card);
       });
     });
   }
@@ -1064,15 +1195,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const titleFontSize = isMobilePreview ? '18px' : '20px';
       
       // Measure title pixel width
-      const titlePx = measurePixelWidth(title, titleFontSize);
+      const titlePx = calculatePixelWidth(title, titleFontSize, 'Arial, sans-serif');
       const isTruncated = titlePx > maxTitlePx;
+
+      // Measure description pixel width (max 960px desktop)
+      const descPx = calculatePixelWidth(desc, '14px', 'Arial, sans-serif');
+      const maxDescPx = isMobilePreview ? 1000 : 960;
       
       // Find truncation point
       let displayTitle = title;
       if (isTruncated) {
         for (let i = title.length; i > 0; i--) {
           const truncated = title.substring(0, i) + '...';
-          if (measurePixelWidth(truncated, titleFontSize) <= maxTitlePx) {
+          if (calculatePixelWidth(truncated, titleFontSize, 'Arial, sans-serif') <= maxTitlePx) {
             displayTitle = truncated;
             break;
           }
@@ -1109,6 +1244,13 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('serp-title-chars').textContent = `${titleChars} characters`;
       document.getElementById('serp-title-px').textContent = `${titlePx}px / ${maxTitlePx}px`;
       document.getElementById('serp-title-px').style.color = isTruncated ? 'var(--intent-err)' : 'var(--intent-trans)';
+      
+      const descPxEl = document.getElementById('serp-desc-px');
+      if (descPxEl) {
+        descPxEl.textContent = `${descPx}px / ${maxDescPx}px`;
+        descPxEl.style.color = descPx > maxDescPx ? 'var(--intent-err)' : 'var(--intent-trans)';
+      }
+
       document.getElementById('serp-desc-chars').textContent = `${descChars} characters`;
       document.getElementById('serp-desc-chars').style.color = descChars > maxDescChars ? 'var(--intent-err)' : 'var(--text-muted)';
       
@@ -1363,9 +1505,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
               let html = '';
               discoveryResults.forEach(item => {
+                const intent = getKeywordIntent(item.keyword);
+                const kd = calculateKD(item.keyword);
                 html += `
                   <tr>
                     <td style="font-weight:bold; color:var(--text)">${escapeHtml(item.keyword)}</td>
+                    <td>${renderIntentBadge(intent)}</td>
+                    <td>${renderKDFlameMeter(kd)}</td>
                     <td><span class="badge warning">${escapeHtml(item.source)}</span></td>
                     <td style="color:var(--text-muted); font-family:monospace">${escapeHtml(item.modifier)}</td>
                   </tr>
@@ -1431,15 +1577,26 @@ document.addEventListener('DOMContentLoaded', () => {
         statusEl.textContent = `Found ${data.clusters.length} clusters & ${data.unclustered.length} unclustered keywords.`;
 
         let html = '';
-        data.clusters.forEach((c, idx) => {
+        data.clusters.forEach((c) => {
           html += `
             <div style="background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:1rem;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
                 <h4 style="color:var(--accent); margin:0">${escapeHtml(c.label)}</h4>
-                <span class="badge success">${c.size} keywords</span>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  ${renderIntentBadge(getKeywordIntent(c.label))}
+                  <span class="badge success">${c.size} keywords</span>
+                </div>
               </div>
               <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.5rem">
-                ${c.keywords.map(k => `<span style="background:var(--bg); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:4px; font-size:0.85rem">${escapeHtml(k)}</span>`).join('')}
+                ${c.keywords.map(k => {
+                  const intent = getKeywordIntent(k);
+                  const kd = calculateKD(k);
+                  return `<div style="background:var(--bg); border:1px solid var(--border); padding:0.4rem 0.6rem; border-radius:6px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                    <span>${escapeHtml(k)}</span>
+                    ${renderIntentBadge(intent)}
+                    ${renderKDFlameMeter(kd)}
+                  </div>`;
+                }).join('')}
               </div>
             </div>
           `;
@@ -1506,12 +1663,16 @@ document.addEventListener('DOMContentLoaded', () => {
             count++;
             countEl.textContent = count;
             const tr = document.createElement('tr');
+            const intent = getKeywordIntent(data.keyword);
+            const kd = calculateKD(data.keyword);
             let posBadgeClass = 'error';
             if (data.position <= 3) posBadgeClass = 'success';
             else if (data.position <= 10) posBadgeClass = 'warning';
 
             tr.innerHTML = `
               <td style="font-weight:bold; color:var(--text)">${escapeHtml(data.keyword)}</td>
+              <td>${renderIntentBadge(intent)}</td>
+              <td>${renderKDFlameMeter(kd)}</td>
               <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis" title="${escapeHtml(data.targetUrl)}">${escapeHtml(data.targetUrl)}</td>
               <td><span class="badge ${posBadgeClass}">#${data.position}</span></td>
               <td>${data.serpFeatures.map(f => `<span class="badge info">${escapeHtml(f)}</span>`).join(' ') || '—'}</td>

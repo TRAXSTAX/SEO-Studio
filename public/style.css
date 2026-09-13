@@ -606,3 +606,645 @@ tr:hover td { background: rgba(0, 243, 255, 0.03); box-shadow: inset 0 0 10px rg
   th, td { padding: 0.8rem 0.5rem; }
   .grade-circle { width: 120px; height: 120px; font-size: 3.5rem; }
 }
+
+/* ==========================================================================
+   CUSTOM SEO SUITE STYLING & COMPONENT THEMES
+   ========================================================================== */
+
+/* ================== 1. SERP PREVIEW BOX & PIXEL METER ================== */
+.serp-preview-box {
+  background: rgba(15, 15, 26, 0.85);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-3d);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.serp-preview-box:hover {
+  border-color: rgba(0, 243, 255, 0.25);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 243, 255, 0.1);
+}
+
+.serp-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Google Desktop / Mobile Toggle Switcher */
+.serp-toggle-group {
+  display: inline-flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.serp-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.serp-toggle-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.serp-toggle-btn.active {
+  background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan));
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 243, 255, 0.4);
+}
+
+/* SERP Google Snippet Card & Typography */
+.serp-snippet-card {
+  font-family: Arial, Roboto, sans-serif;
+  max-width: 600px;
+  transition: max-width 0.3s ease;
+}
+
+.serp-preview-box.mobile-mode .serp-snippet-card {
+  max-width: 360px;
+  padding: 1.2rem;
+  background: #171723;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.serp-url-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #bdc1c6;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.serp-favicon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #303134;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #8ab4f8;
+  flex-shrink: 0;
+  font-weight: bold;
+}
+
+.serp-site-name {
+  font-size: 14px;
+  color: #dadce0;
+  font-weight: 400;
+}
+
+.serp-breadcrumb-path {
+  font-size: 12px;
+  color: #bdc1c6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.serp-title-link {
+  font-size: 20px;
+  color: #8ab4f8;
+  line-height: 1.3;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  text-decoration: none;
+  display: inline-block;
+  word-break: break-word;
+  transition: color 0.2s ease;
+}
+
+.serp-title-link:hover {
+  text-decoration: underline;
+  color: #9eccff;
+}
+
+.serp-title-link.classic-blue {
+  color: #1a0dab;
+}
+
+.serp-title-link.classic-blue:hover {
+  text-decoration: underline;
+}
+
+.serp-snippet-desc {
+  font-size: 14px;
+  color: #bdc1c6;
+  line-height: 1.58;
+  font-family: Arial, sans-serif;
+  word-break: break-word;
+}
+
+/* Pixel Width Meter Progress Bar */
+.pixel-meter-container {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pixel-meter-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.pixel-meter-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.pixel-meter-val.warn {
+  color: #fbbf24;
+}
+
+.pixel-meter-val.overflow {
+  color: #ef4444;
+}
+
+.pixel-meter {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pixel-meter-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-indigo), var(--accent-cyan));
+  border-radius: 99px;
+  transition: width 0.3s ease, background 0.3s ease;
+  box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.pixel-meter-fill.warn {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+}
+
+.pixel-meter-fill.overflow {
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+}
+
+/* ================== 2. KEYWORD DIFFICULTY FLAME METER ================== */
+.kd-flame-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-3d);
+  position: relative;
+}
+
+.kd-flame-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kd-flame-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+
+.kd-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+/* Difficulty Tier Color Schemes & Flame Effects */
+/* Easy Green < 30 */
+.kd-flame-meter.easy .kd-score-badge,
+.kd-badge.easy {
+  background: rgba(16, 185, 129, 0.18);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+/* Medium Yellow 30-60 */
+.kd-flame-meter.medium .kd-score-badge,
+.kd-badge.medium {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.4);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+}
+
+/* Hard Orange 60-80 */
+.kd-flame-meter.hard .kd-score-badge,
+.kd-badge.hard {
+  background: rgba(249, 115, 22, 0.18);
+  color: #f97316;
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.3);
+}
+
+/* Super Hard Flame Red > 80 */
+.kd-flame-meter.super-hard .kd-score-badge,
+.kd-badge.super-hard {
+  background: rgba(239, 68, 68, 0.22);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+  animation: flamePulse 2s infinite ease-in-out;
+}
+
+@keyframes flamePulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); filter: drop-shadow(0 0 4px #ef4444); }
+  50% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.8); filter: drop-shadow(0 0 10px #ff0044); }
+}
+
+.kd-flame-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 99px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.kd-flame-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kd-flame-meter.easy .kd-flame-fill {
+  background: linear-gradient(90deg, #059669, #10b981);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+}
+
+.kd-flame-meter.medium .kd-flame-fill {
+  background: linear-gradient(90deg, #d97706, #fbbf24);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+}
+
+.kd-flame-meter.hard .kd-flame-fill {
+  background: linear-gradient(90deg, #ea580c, #f97316);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.7);
+}
+
+.kd-flame-meter.super-hard .kd-flame-fill {
+  background: linear-gradient(90deg, #dc2626, #ef4444, #ff0055);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.9);
+}
+
+/* ================== 3. SEARCH INTENT CHIPS ================== */
+.intent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid transparent;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: default;
+  user-select: none;
+}
+
+.intent-chip:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Informational Intent */
+.intent-chip.intent-info,
+.badge.intent-info {
+  background: var(--intent-info-bg);
+  color: var(--intent-info);
+  border-color: rgba(0, 243, 255, 0.45);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.25), inset 0 0 8px rgba(0, 243, 255, 0.1);
+}
+
+.intent-chip.intent-info:hover {
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.5), inset 0 0 12px rgba(0, 243, 255, 0.2);
+  border-color: var(--accent-cyan);
+}
+
+/* Navigational Intent */
+.intent-chip.intent-nav,
+.badge.intent-nav {
+  background: var(--intent-nav-bg);
+  color: var(--intent-nav);
+  border-color: rgba(168, 85, 247, 0.45);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.25), inset 0 0 8px rgba(168, 85, 247, 0.1);
+}
+
+.intent-chip.intent-nav:hover {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), inset 0 0 12px rgba(168, 85, 247, 0.2);
+  border-color: var(--accent-violet);
+}
+
+/* Commercial Intent */
+.intent-chip.intent-comm,
+.badge.intent-comm {
+  background: var(--intent-comm-bg);
+  color: var(--intent-comm);
+  border-color: rgba(251, 191, 36, 0.45);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.25), inset 0 0 8px rgba(251, 191, 36, 0.1);
+}
+
+.intent-chip.intent-comm:hover {
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), inset 0 0 12px rgba(251, 191, 36, 0.2);
+  border-color: #fbbf24;
+}
+
+/* Transactional Intent */
+.intent-chip.intent-trans,
+.badge.intent-trans {
+  background: var(--intent-trans-bg);
+  color: var(--intent-trans);
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25), inset 0 0 8px rgba(16, 185, 129, 0.1);
+}
+
+.intent-chip.intent-trans:hover {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 12px rgba(16, 185, 129, 0.2);
+  border-color: var(--accent-emerald);
+}
+
+/* ================== 4. CORE WEB VITALS HUD GAUGE DIALS ================== */
+.cwv-gauge-hud {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-3d);
+  margin-top: 1.5rem;
+}
+
+.cwv-dial-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 1rem;
+  background: rgba(10, 10, 20, 0.5);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.cwv-dial-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 243, 255, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.cwv-dial-ring {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  background: conic-gradient(var(--ring-color, var(--accent-cyan)) calc(var(--score, 85) * 1%), rgba(255, 255, 255, 0.06) 0);
+  padding: 8px;
+  box-shadow: 0 0 20px var(--ring-glow, rgba(0, 243, 255, 0.2));
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cwv-dial-ring::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  background: #090912;
+  border-radius: 50%;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.cwv-dial-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cwv-dial-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.cwv-dial-unit {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.cwv-dial-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.05em;
+}
+
+.cwv-dial-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* CWV Ring Statuses: Pass, Warn, Fail */
+.cwv-dial-ring.pass,
+.pulse-ring.pass {
+  --ring-color: #10b981;
+  --ring-glow: rgba(16, 185, 129, 0.35);
+}
+
+.cwv-dial-ring.warn,
+.pulse-ring.warn {
+  --ring-color: #fbbf24;
+  --ring-glow: rgba(251, 191, 36, 0.35);
+}
+
+.cwv-dial-ring.fail,
+.pulse-ring.fail {
+  --ring-color: #ef4444;
+  --ring-glow: rgba(239, 68, 68, 0.4);
+}
+
+/* ================== 5. FLOATING QUICK ACTION BAR ================== */
+.quick-action-bar {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: rgba(15, 15, 28, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quick-action-bar:hover {
+  background: rgba(20, 20, 38, 0.88);
+  border-color: rgba(0, 243, 255, 0.3);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 25px rgba(0, 243, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.quick-action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.quick-action-btn:hover {
+  color: var(--accent-cyan);
+  background: rgba(0, 243, 255, 0.12);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.quick-action-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.quick-action-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Audit Trigger Button (Primary Highlight Action) */
+.quick-action-btn.audit-trigger {
+  width: auto;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent-indigo) 0%, var(--accent-cyan) 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 243, 255, 0.4);
+}
+
+.quick-action-btn.audit-trigger:hover {
+  background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6), 0 0 15px rgba(0, 243, 255, 0.6);
+  color: #ffffff;
+  transform: translateY(-1px) scale(1.03);
+}
+
+.quick-action-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background: rgba(10, 10, 20, 0.95);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.quick-action-btn:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+}

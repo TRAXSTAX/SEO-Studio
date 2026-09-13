@@ -350,4 +350,92 @@ document.addEventListener('DOMContentLoaded', () => {
             else circleElement.style.stroke = '#ff2a2a';
         }, 50);
     };
+
+    // 7. SERP Pixel Width Calculator Hook
+    const _sharedCanvas = document.createElement('canvas');
+    const _sharedCtx = _sharedCanvas.getContext('2d');
+
+    window.calculatePixelWidth = function(text, fontSize = '20px', fontFamily = 'Arial, sans-serif') {
+        if (!text) return 0;
+        const fontCss = typeof fontSize === 'number' ? `${fontSize}px` : (fontSize || '20px');
+        _sharedCtx.font = `${fontCss} ${fontFamily}`;
+        return Math.round(_sharedCtx.measureText(text).width);
+    };
+
+    // 8. Core Web Vitals HUD Speed Dial Animations
+    window.renderCWVSpeedDials = function(containerElement, metrics = {}) {
+        if (!containerElement) return;
+        
+        const score = metrics.score || 0;
+        const lcpVal = metrics.lcp || 'N/A';
+        const clsVal = metrics.cls || 'N/A';
+        const tbtVal = metrics.tbt || 'N/A';
+
+        const parseNum = (str) => {
+            const num = parseFloat(str);
+            return isNaN(num) ? 0 : num;
+        };
+
+        const lcpNum = parseNum(lcpVal);
+        const lcpStatus = lcpNum === 0 ? 'warn' : (lcpNum <= 2.5 ? 'pass' : (lcpNum <= 4.0 ? 'warn' : 'fail'));
+        const lcpScore = lcpNum === 0 ? 50 : Math.max(10, Math.min(100, Math.round(100 - (lcpNum / 6.0) * 100)));
+
+        const clsNum = parseNum(clsVal);
+        const clsStatus = clsNum === 0 ? 'pass' : (clsNum <= 0.1 ? 'pass' : (clsNum <= 0.25 ? 'warn' : 'fail'));
+        const clsScore = Math.max(10, Math.min(100, Math.round(100 - (clsNum / 0.5) * 100)));
+
+        const tbtNum = parseNum(tbtVal);
+        const tbtStatus = tbtNum === 0 ? 'pass' : (tbtNum <= 200 ? 'pass' : (tbtNum <= 600 ? 'warn' : 'fail'));
+        const tbtScore = tbtNum === 0 ? 95 : Math.max(10, Math.min(100, Math.round(100 - (tbtNum / 1000) * 100)));
+
+        const perfStatus = score >= 90 ? 'pass' : (score >= 50 ? 'warn' : 'fail');
+
+        containerElement.innerHTML = `
+            <div class="cwv-gauge-hud">
+                <div class="cwv-dial-card">
+                    <div class="cwv-dial-ring ${perfStatus}" style="--score: ${score}">
+                        <div class="cwv-dial-content">
+                            <div class="cwv-dial-val">${score}</div>
+                            <div class="cwv-dial-unit">Score</div>
+                        </div>
+                    </div>
+                    <div class="cwv-dial-label">Performance</div>
+                    <div class="cwv-dial-sub">Lighthouse Score</div>
+                </div>
+
+                <div class="cwv-dial-card">
+                    <div class="cwv-dial-ring ${lcpStatus}" style="--score: ${lcpScore}">
+                        <div class="cwv-dial-content">
+                            <div class="cwv-dial-val">${lcpVal}</div>
+                            <div class="cwv-dial-unit">Seconds</div>
+                        </div>
+                    </div>
+                    <div class="cwv-dial-label">LCP</div>
+                    <div class="cwv-dial-sub">Largest Contentful Paint</div>
+                </div>
+
+                <div class="cwv-dial-card">
+                    <div class="cwv-dial-ring ${clsStatus}" style="--score: ${clsScore}">
+                        <div class="cwv-dial-content">
+                            <div class="cwv-dial-val">${clsVal}</div>
+                            <div class="cwv-dial-unit">Shift</div>
+                        </div>
+                    </div>
+                    <div class="cwv-dial-label">CLS</div>
+                    <div class="cwv-dial-sub">Cumulative Layout Shift</div>
+                </div>
+
+                <div class="cwv-dial-card">
+                    <div class="cwv-dial-ring ${tbtStatus}" style="--score: ${tbtScore}">
+                        <div class="cwv-dial-content">
+                            <div class="cwv-dial-val">${tbtVal}</div>
+                            <div class="cwv-dial-unit">ms</div>
+                        </div>
+                    </div>
+                    <div class="cwv-dial-label">TBT / Interactivity</div>
+                    <div class="cwv-dial-sub">Total Blocking Time</div>
+                </div>
+            </div>
+        `;
+    };
 });
